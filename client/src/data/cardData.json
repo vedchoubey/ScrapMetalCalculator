@@ -1,0 +1,14 @@
+[
+    { "Carat": " 8 Carat", "pricePerGram": 50, "shared" : false },
+    { "Carat": "10 Carat", "pricePerGram": 75, "shared" : false },
+    { "Carat": "12 Carat", "pricePerGram": 100, "shared" : false },
+    { "Carat": "14 Carat", "pricePerGram": 50,  "shared" : false },
+    { "Carat": "15 Carat", "pricePerGram": 75, "shared" : false },
+    { "Carat": "18 Carat", "pricePerGram": 50, "shared" : false },
+    { "Carat": "20 Carat", "pricePerGram": 75, "shared" : false },
+    { "Carat": "21 Carat", "pricePerGram": 75, "shared" : false },
+    { "Carat": "900/1000", "pricePerGram": 75, "shared" : false },
+    { "Carat": "22 Carat", "pricePerGram": 75,"shared" : false },
+    { "Carat": "24 Carat", "pricePerGram": 75, "shared" : false }
+  ]
+  

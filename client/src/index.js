@@ -3,17 +3,21 @@ import ReactDOM from 'react-dom/client';
 import {App} from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import '@fontsource/roboto';
 
 const theme = createTheme(
   {
     palette : {
       primary : {
-        main : "#47bcbd"
+        main : "#9966CC"
       },
       secondary : {
-        main : "#ffffff"
+        main : "#FFFFFF"
       },
     },
+    typography:{
+      fontFamily: 'Roboto,',
+    }
   }
 )
 
