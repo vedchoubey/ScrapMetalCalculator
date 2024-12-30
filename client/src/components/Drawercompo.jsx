@@ -12,6 +12,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const menuItems = [
     { section: "PRIMARY", items: [
@@ -27,6 +28,9 @@ const menuItems = [
       { name: "Expenses", icon: <CalculateIcon /> },
       { name: "VAT Summary", icon: <SummarizeIcon /> },
     ]},
+    {section:"", items: [ 
+      { name:"Logout",icon : <LogoutIcon/>}
+    ],}
   ];
 
 export const Drawercompo = () => {
@@ -45,8 +49,8 @@ const listStyles = {  "&:hover": {
               LOGO</Typography></Button></Link>
            {
             menuItems.map((section,index)=>(
-                <Box key={index}>
-                    <Typography sx={{fontSize: 10, ml: 2, mt: 2}}>{section.section}</Typography>
+                <Box key={index} sx={index === menuItems.length-1 ? {} : {mt:2} } >
+                    <Typography sx={{fontSize: 10, ml: 2,}}>{section.section}</Typography>
                     <List>
                         { section.items.map((item,index)=>(
                             <ListItemButton key={index} sx={listStyles}>
@@ -68,7 +72,7 @@ const listStyles = {  "&:hover": {
       </IconButton>
     </>
     )
-}
+} 
         
         
        
