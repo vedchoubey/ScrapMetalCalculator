@@ -1,0 +1,8 @@
+{
+  "name": "ScrapGoldCalculator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/vedchoubey/ScrapGoldCalculator.git",
+  "author": "vedchoubey <147600515+vedchoubey@users.noreply.github.com>",
+  "license": "MIT"
+}
