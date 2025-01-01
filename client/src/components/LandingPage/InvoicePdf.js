@@ -1,36 +1,36 @@
 // InvoicePdf.js
-import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import CurrencyPoundIcon from '@mui/icons-material/CurrencyPound'; 
+import React from "react";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 
 const styles = StyleSheet.create({
   page: {
     padding: 20,
     fontSize: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   },
   section: {
     marginBottom: 10,
   },
   header: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   table: {
-    display: 'table',
-    width: '100%',
-    borderStyle: 'solid',
+    display: "table",
+    width: "100%",
+    borderStyle: "solid",
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: "#000",
   },
   row: {
-    flexDirection: 'row',
-    borderBottom: '1px solid #000',
+    flexDirection: "row",
+    borderBottom: "1px solid #000",
     padding: 5,
   },
   cell: {
-    width: '25%',
-    textAlign: 'center',
+    width: "25%",
+    textAlign: "center",
     padding: 5,
   },
 });
@@ -58,7 +58,10 @@ const InvoicePdf = ({ sharedRows, totalWeight, totalSubtotal }) => (
       <View style={styles.section}>
         <Text style={styles.header}>Total: </Text>
         <Text>{totalWeight}g</Text>
-        <Text><CurrencyPoundIcon/>{totalSubtotal.toFixed(2)}</Text>
+        <Text>
+          <CurrencyPoundIcon />
+          {totalSubtotal.toFixed(2)}
+        </Text>
       </View>
     </Page>
   </Document>
