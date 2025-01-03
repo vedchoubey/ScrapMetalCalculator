@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+=======
+// InvoicePdf.js
+import React from "react";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
+>>>>>>> 3999dbad3bcb8971158c9bbd9828fb03fe2587cd
 
 const styles = StyleSheet.create({
   page: {
     padding: "40px 50px",
     fontSize: 12,
     backgroundColor: "#ffffff",
+<<<<<<< HEAD
     fontFamily: "Helvetica",
   },
   header: {
@@ -32,6 +40,15 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     gap: 1,
+=======
+  },
+  section: {
+    marginBottom: 10,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+>>>>>>> 3999dbad3bcb8971158c9bbd9828fb03fe2587cd
   },
   table: {
     display: "table",
@@ -39,6 +56,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
+<<<<<<< HEAD
     marginTop: 20,
   },
   tableHeader: {
@@ -58,6 +76,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderColor: "#000",
+=======
+  },
+  row: {
+    flexDirection: "row",
+    borderBottom: "1px solid #000",
+>>>>>>> 3999dbad3bcb8971158c9bbd9828fb03fe2587cd
     padding: 5,
   },
   cell: {
@@ -88,6 +112,7 @@ const InvoicePdf = ({ sharedRows }) => (
           </View>
         </View>
       </View>
+<<<<<<< HEAD
 
       <View style={[styles.spaceY, styles.boldText]}>
         <Text>VAT Registration No: GB 926 1883 05</Text>
@@ -114,6 +139,15 @@ const InvoicePdf = ({ sharedRows }) => (
             <Text style={styles.cell}>{row.subtotal}</Text>
           </View>
         ))}
+=======
+      <View style={styles.section}>
+        <Text style={styles.header}>Total: </Text>
+        <Text>{totalWeight}g</Text>
+        <Text>
+          <CurrencyPoundIcon />
+          {totalSubtotal.toFixed(2)}
+        </Text>
+>>>>>>> 3999dbad3bcb8971158c9bbd9828fb03fe2587cd
       </View>
     </Page>
   </Document>
