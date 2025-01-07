@@ -28,7 +28,7 @@ export const MainPage = () => {
   };
 
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm")); // Check if the screen size is small (xs, sm)
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm")); 
 
   return (
     <>
@@ -44,8 +44,8 @@ export const MainPage = () => {
         <CardContent>
           <Typography
             sx={{
-              ml: isSmallScreen ? 2 : 5, // Adjust margin for small screens
-              fontSize: isSmallScreen ? 20 : 25, // Adjust font size for small screens
+              ml: isSmallScreen ? 2 : 5, 
+              fontSize: isSmallScreen ? 20 : 25, 
               fontWeight: 550,
             }}
           >
@@ -62,8 +62,8 @@ export const MainPage = () => {
               display: "flex",
               pt: 2,
               gap: 1,
-              pl: isSmallScreen ? 2 : 5, // Adjust padding for small screens
-              flexDirection: isSmallScreen ? "column" : "row", // Stack tabs vertically for small screens
+              pl: isSmallScreen ? 2 : 5, 
+              flexDirection: isSmallScreen ? "column" : "row", 
             }}
           >
             <Tabs
@@ -71,11 +71,11 @@ export const MainPage = () => {
               onChange={handleTabChange}
               textColor="inherit"
               TabIndicatorProps={{ style: { display: "none" } }}
-              orientation={isSmallScreen ? "vertical" : "horizontal"} // Vertical orientation for small screens
+              orientation={isSmallScreen ? "vertical" : "horizontal"} 
               sx={{
                 "& .MuiTabs-flexContainer": {
                   gap: "12px",
-                  flexDirection: isSmallScreen ? "column" : "row", // Stack tabs vertically for small screens
+                  flexDirection: isSmallScreen ? "column" : "row", 
                 },
               }}
             >
@@ -95,8 +95,8 @@ export const MainPage = () => {
                       backgroundColor: "primary.main",
                       color: "white",
                     },
-                    fontSize: isSmallScreen ? 12 : 14, // Adjust font size for small screens
-                    padding: isSmallScreen ? "5px 8px" : "10px 16px", // Adjust padding for small screens
+                    fontSize: isSmallScreen ? 12 : 14, 
+                    padding: isSmallScreen ? "5px 8px" : "10px 16px", 
                   }}
                 />
               ))}

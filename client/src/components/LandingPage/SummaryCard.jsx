@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -12,7 +12,7 @@ import {
   Button,
 } from "@mui/material";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
-import { PDFDownloadLink , } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePdf from "./InvoicePdf";
 
 export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
@@ -29,10 +29,6 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
     (sum, row) => sum + (row.subtotal || 0),
     0
   );
-  
-
-  
-
 
   return (
     <Card sx={{ m: 2, borderRadius: 3, maxWidth: 680 }}>
@@ -117,9 +113,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                       borderTop: "1px solid grey",
                       borderBottom: "1px solid grey",
                     }}
-                  >
-                    
-                  </TableCell>
+                  ></TableCell>
                   <TableCell
                     sx={{
                       fontWeight: "bold",
@@ -194,15 +188,3 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
     </Card>
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
