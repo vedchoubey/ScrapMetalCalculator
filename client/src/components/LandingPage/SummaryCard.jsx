@@ -1,19 +1,8 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  TableHead,
-  Box,
-  Button,
-} from "@mui/material";
+import {Card,CardContent,Typography,Table,TableBody,TableCell,TableRow,TableHead,Box,Button,} from "@mui/material";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import InvoicePdf from "./InvoicePdf";
+import { InvoicePdf } from "../invoice/InvoicePdf";
 
 export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
   const isSummaryEmpty = sharedRows.length === 0;
@@ -42,11 +31,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
               <TableHead>
                 <TableRow>
                   <TableCell
-                    sx={{
-                      borderBottom: "none",
-                      color: "grey",
-                      borderBottom: "1px solid grey",
-                    }}
+                    sx={{borderBottom: "none",color: "grey",borderBottom: "1px solid grey",}}
                   >
                     Goods
                   </TableCell>
@@ -137,7 +122,14 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
               </TableBody>
             </Table>
 
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                flexDirection: { xs: "column", md: "row" },
+                mt: 2,
+              }}
+            >
               <PDFDownloadLink
                 document={
                   <InvoicePdf
@@ -160,6 +152,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                         backgroundColor: "primary.main",
                         color: "white",
                       },
+                      width: { xs: "100%", md: "auto" },
                     }}
                   >
                     {loading ? "Loading document..." : "Generate Invoice"}
@@ -177,6 +170,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                     backgroundColor: "primary.main",
                     color: "white",
                   },
+                  width: { xs: "100%", md: "auto" },
                 }}
               >
                 Calculate Again
