@@ -5,12 +5,14 @@ import { MainPage } from "./components/LandingPage/MainPage";
 
 
 
+
 export const App = () => {
   return(
     <>
     <Routes>
       <Route path="/drawer" element = {<Drawercompo/>} />
       <Route path="/" element = {<MainPage/>} />
+      
       
       
 
