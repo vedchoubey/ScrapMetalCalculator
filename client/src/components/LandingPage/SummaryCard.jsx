@@ -68,7 +68,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                 {sharedRows.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell sx={{ borderBottom: "none" }}>
-                      {row.Carat}
+                      {row.Carat} Carat
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
                       {row.quantity || " "}
@@ -78,7 +78,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                     </TableCell>
                     <TableCell sx={{ borderBottom: "none" }}>
                       <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                      {row.subtotal}
+                      {row.subtotal.toFixed(3)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -116,7 +116,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                     }}
                   >
                     <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                    {totalSubtotal.toFixed(2)}
+                    {totalSubtotal.toFixed(3)}
                   </TableCell>
                 </TableRow>
               </TableBody>
