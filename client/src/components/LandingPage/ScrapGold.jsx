@@ -1,5 +1,5 @@
-import React from "react";
-import {Box,Card,Paper,Table,TableBody,TableCell,TableContainer,TableHead,IconButton,TableRow,TextField,} from "@mui/material";
+import React, {useState} from "react";
+import {Box,Card,Paper,Table,TableBody,TableCell,TableContainer,TableHead,IconButton,TableRow,TextField,Typography} from "@mui/material";
 import cardData from "../../data/cardData.json";
 import { SummaryCard } from "./SummaryCard";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
@@ -7,8 +7,21 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 
 export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) => {
+  const [baseRate, setBaseRate] = useState(5000);
+
+  const calculatePricePerGram = (carat) => {
+    if (!baseRate || baseRate <= 0) return 0; // Ensure no NaN or invalid calculations
+    return (carat / 24) * baseRate;
+  };
+  const handleBaseRateChange = (e) => {
+    const value = parseFloat(e.target.value);
+    setBaseRate(value > 0 ? value : 0); // Update base rate or set it to 0 if invalid
+  };
+
+
   const calculateSubtotal = (pricePerGram, weight) => {
-    return pricePerGram * (weight || 0);
+    if (!weight || weight <= 0) return 0; // Ensure no invalid calculations
+    return pricePerGram * weight;
   };
 
   const handleWeightChange = (Carat, value) => {
@@ -27,10 +40,12 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
       return;
     }
 
-    const subtotal = calculateSubtotal(row.pricePerGram, weightValue);
+    const pricePerGram = calculatePricePerGram(row.Carat);
+
+    const subtotal = calculateSubtotal(pricePerGram, weightValue);
     setSharedRows((prev) => [
       ...prev,
-      { ...row, weight: weightValue, subtotal },
+      { ...row, pricePerGram, weight: weightValue, subtotal },
     ]);
   };
 
@@ -46,7 +61,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
   return (
     <Box
       sx={{ display: "flex",flexDirection: { xs: "column", md: "row" }, gap: 3, px: { md: 2 },
-        py: { xs: 2, md: 4 }, justifyContent: "space-between",alignItems: { xs: "center", lg: "flex-start" },
+        py: { xs: 2, md: 4 }, justifyContent: "space-between",alignItems: { xs: "center", md: "flex-start" },
       }}
     >
       <Card
@@ -54,6 +69,29 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
           border: "1px solid #9966CC",
         }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            p: 2,
+          }}
+        >
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            Price per 24 Carat (per gram):
+          </Typography>
+          <TextField
+            label="Price/24 Carat"
+            type="number"
+            variant="outlined"
+            size="small"
+            value={baseRate}
+            onChange={handleBaseRateChange}
+            sx={{ maxWidth: "150px" }}
+          />
+        </Box>
+
+
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -74,75 +112,63 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
               </TableRow>
             </TableHead>
             <TableBody>
-              {cardData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell
-                    sx={{borderBottom: "none", backgroundColor: sharedRows.some(
+            {cardData.map((row, index) => {
+                const pricePerGram = calculatePricePerGram(row.Carat);
+                const weight = weights[row.Carat] || 0;
+                const subtotal = calculateSubtotal(pricePerGram, weight);
+
+                return (
+                  <TableRow key={index}>
+                    <TableCell sx={{borderBottom:"none"}} >{row.Carat} Carat</TableCell>
+                    <TableCell sx={{borderBottom:"none"}} >
+                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
+                      {pricePerGram.toFixed(3)}
+                    </TableCell>
+                    <TableCell sx={{borderBottom:"none"}}>
+                      <TextField
+                        variant="standard"
+                        type="number"
+                        size="small"
+                        value={weights[row.Carat] || ""}
+                        onChange={(e) =>
+                          handleWeightChange(
+                            row.Carat,
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        error={weights[row.Carat] <= 0}
+                        helperText={
+                          weights[row.Carat] <= 0 ? "Must be greater than 0" : ""
+                        }
+                      />
+                    </TableCell>
+                    <TableCell sx={{borderBottom:"none"}}>
+                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
+                      {subtotal.toFixed(3)}
+                    </TableCell>
+                    <TableCell sx={{borderBottom:"none"}}>
+                      {!sharedRows.some(
                         (sharedRow) => sharedRow.Carat === row.Carat
-                      )
-                        ? "#f0f8ff"
-                        : "inherit",
-                    }}
-                  >
-                    {row.Carat}
-                  </TableCell>
-                  <TableCell
-                    sx={{ borderBottom: "none", backgroundColor: sharedRows.some(
-                        (sharedRow) => sharedRow.Carat === row.Carat
-                      )
-                        ? "#f0f8ff"
-                        : "inherit",
-                    }}
-                  >
-                    <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                    {row.pricePerGram}
-                  </TableCell>
-                  <TableCell
-                    sx={{borderBottom: "none",backgroundColor: sharedRows.some(
-                        (sharedRow) => sharedRow.Carat === row.Carat
-                      )
-                        ? "#f0f8ff"
-                        : "inherit",
-                    }}
-                  >
-                    <TextField
-                      variant="standard" type="number" size="small" value={weights[row.Carat] || ""}
-                      onChange={(e) =>
-                        handleWeightChange(
-                          row.Carat,
-                          parseFloat(e.target.value) || 0
-                        )
-                      }
-                      error={weights[row.Carat] <= 0}
-                      helperText={
-                        weights[row.Carat] <= 0 ? "Must be greater than 0" : ""
-                      }
-                    />
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                    {calculateSubtotal(row.pricePerGram, weights[row.Carat])}
-                  </TableCell>
-                  <TableCell sx={{ borderBottom: "none" }}>
-                    {!sharedRows.some((sharedRow) => sharedRow.Carat === row.Carat) ? (
-                      <IconButton
-                        onClick={() => handleShareRow(index)}
-                        color="primary"
-                        disabled={!weights[row.Carat] || weights[row.Carat] <= 0}
-                      >
-                        <ArrowRightAltIcon />
-                      </IconButton>
-                    ) : (
-                      <IconButton
-                        onClick={() => handleUnshareRow(row.Carat)}
-                        color="primary"
-                      >
-                        <ArrowBackIcon />
-                      </IconButton>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                      ) ? (
+                        <IconButton
+                          onClick={() => handleShareRow(index)}
+                          color="primary"
+                          disabled={!weights[row.Carat] || weights[row.Carat] <= 0}
+                        >
+                          <ArrowRightAltIcon />
+                        </IconButton>
+                      ) : (
+                        <IconButton
+                          onClick={() => handleUnshareRow(row.Carat)}
+                          color="primary"
+                        >
+                          <ArrowBackIcon />
+                        </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
@@ -161,7 +187,6 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
     </Box>
   );
 };
-
 
 
 
