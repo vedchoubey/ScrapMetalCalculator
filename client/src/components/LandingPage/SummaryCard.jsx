@@ -1,10 +1,42 @@
-import React from "react";
-import {Card,CardContent,Typography,Table,TableBody,TableCell,TableRow,TableHead,Box,Button,} from "@mui/material";
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePdf } from "../invoice/InvoicePdf";
+import Receipt from ".././Receipt";
+import { ShortReceipt } from "../ShortReceipt";
 
 export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const isDropdownOpen = Boolean(anchorEl);
+
+  const handleDropdownClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleDropdownClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleReceiptGenerate = () => {
+    setShowReceipt(true);
+    handleDropdownClose();
+  };
+
   const isSummaryEmpty = sharedRows.length === 0;
   const totalWeight = sharedRows.reduce(
     (sum, row) => sum + (row.weight || 0),
@@ -27,100 +59,124 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
           <Typography>No items shared yet.</Typography>
         ) : (
           <>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{borderBottom: "none",color: "grey",borderBottom: "1px solid grey",}}
-                  >
-                    Goods
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "none",
-                      color: "grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  >
-                    Quantity
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "none",
-                      color: "grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  >
-                    Weight (g)
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "none",
-                      color: "grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  >
-                    Subtotal
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {sharedRows.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {row.Carat} Carat
+            <Box sx={{ overflowX: "auto" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        borderBottom: "none",
+                        color: "grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      Goods
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {row.quantity || " "}
+
+                    <TableCell
+                      sx={{
+                        borderBottom: "none",
+                        color: "grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      Quantity
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      {row.weight}g
+                    <TableCell
+                      sx={{
+                        borderBottom: "none",
+                        color: "grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      Weight(g)
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "none" }}>
-                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                      {row.subtotal.toFixed(3)}
+                    <TableCell
+                      sx={{
+                        borderBottom: "none",
+                        color: "grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      Subtotal
                     </TableCell>
                   </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                      borderTop: "1px solid grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  >
-                    Total
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                      borderTop: "1px solid grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  ></TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                      borderTop: "1px solid grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  >
-                    {totalWeight}g
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: "bold",
-                      borderTop: "1px solid grey",
-                      borderBottom: "1px solid grey",
-                    }}
-                  >
-                    <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                    {totalSubtotal.toFixed(3)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                </TableHead>
+                <span
+                  style={{
+                    color: "grey",
+                    marginLeft: "15px",
+                    marginTop: "10px",
+                  }}
+                >
+                  Scrap
+                </span>
+                <TableBody>
+                  {sharedRows.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <Typography display="flex" alignItems="center">
+                          {row.Carat}{" "}
+                          <span style={{ marginLeft: "4px" }}>Carat</span>
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {row.quantity || " "}
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        {row.weight}g
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: "none" }}>
+                        <Typography display="flex" alignItems="center">
+                          <CurrencyPoundIcon
+                            sx={{ fontSize: "small", mr: 0.5 }}
+                          />
+                          {row.subtotal.toFixed(3)}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        fontWeight: "bold",
+                        borderTop: "1px solid grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      Total
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "bold",
+                        borderTop: "1px solid grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    ></TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "bold",
+                        borderTop: "1px solid grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      {totalWeight}g
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: "bold",
+                        borderTop: "1px solid grey",
+                        borderBottom: "1px solid grey",
+                      }}
+                    >
+                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
+                      {totalSubtotal.toFixed(3)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Box>
 
             <Box
               sx={{
@@ -130,35 +186,77 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                 mt: 2,
               }}
             >
-              <PDFDownloadLink
-                document={
-                  <InvoicePdf
-                    sharedRows={sharedRows}
-                    totalWeight={totalWeight}
-                    totalQuantity={totalQuantity}
-                    totalSubtotal={totalSubtotal}
-                  />
-                }
-                fileName="invoice.pdf"
+              <Button
+                variant="outlined"
+                onClick={handleDropdownClick}
+                sx={{
+                  textTransform: "none",
+                  color: "grey",
+                  borderColor: "primary.main",
+                  "&:hover,&.Mui-selected": {
+                    backgroundColor: "primary.main",
+                    color: "white",
+                  },
+                  width: { xs: "100%", md: "auto" },
+                }}
               >
-                {({ loading }) => (
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      textTransform: "none",
-                      color: "grey",
-                      borderColor: "primary.main",
-                      "&:hover,&.Mui-selected": {
-                        backgroundColor: "primary.main",
-                        color: "white",
-                      },
-                      width: { xs: "100%", md: "auto" },
-                    }}
+                Generate Options
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={isDropdownOpen}
+                onClose={handleDropdownClose}
+              >
+                <MenuItem>
+                  <PDFDownloadLink
+                    document={
+                      <ShortReceipt
+                        sharedRows={sharedRows}
+                        totalWeight={totalWeight}
+                        totalSubtotal={totalSubtotal}
+                      />
+                    }
+                    fileName="shortReceipt.pdf"
                   >
-                    {loading ? "Loading document..." : "Generate Invoice"}
-                  </Button>
-                )}
-              </PDFDownloadLink>
+                    {({ loading }) =>
+                      loading ? "Loading..." : "Short Receipt"
+                    }
+                  </PDFDownloadLink>
+                </MenuItem>
+
+                <MenuItem>
+                  <PDFDownloadLink
+                    document={
+                      <Receipt
+                        sharedRows={sharedRows}
+                        totalWeight={totalWeight}
+                        totalSubtotal={totalSubtotal}
+                      />
+                    }
+                    fileName="receipt.pdf"
+                  >
+                    {({ loading }) =>
+                      loading ? "Loading..." : "Receipt Generate"
+                    }
+                  </PDFDownloadLink>
+                </MenuItem>
+
+                <MenuItem>
+                  <PDFDownloadLink
+                    document={
+                      <InvoicePdf
+                        sharedRows={sharedRows}
+                        totalWeight={totalWeight}
+                        totalQuantity={totalQuantity}
+                        totalSubtotal={totalSubtotal}
+                      />
+                    }
+                    fileName="invoice.pdf"
+                  >
+                    {({ loading }) => (loading ? "Loading..." : "Postal Form")}
+                  </PDFDownloadLink>
+                </MenuItem>
+              </Menu>
               <Button
                 variant="outlined"
                 onClick={resetSharedRows}

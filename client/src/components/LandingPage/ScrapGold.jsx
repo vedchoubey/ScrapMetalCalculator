@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Box,Card,Paper,Table,TableBody,TableCell,TableContainer,TableHead,IconButton,TableRow,TextField,Typography} from "@mui/material";
+import {Box,Card,Paper,Table,TableBody,TableCell,InputAdornment,TableContainer,TableHead,IconButton,TableRow,TextField,Typography, useMediaQuery, useTheme} from "@mui/material";
 import cardData from "../../data/cardData.json";
 import { SummaryCard } from "./SummaryCard";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
@@ -7,20 +7,22 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
 
 export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) => {
-  const [baseRate, setBaseRate] = useState(5000);
+  const [baseRate, setBaseRate] = useState(70);
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
 
   const calculatePricePerGram = (carat) => {
-    if (!baseRate || baseRate <= 0) return 0; // Ensure no NaN or invalid calculations
+    if (!baseRate || baseRate <= 0) return 0; 
     return (carat / 24) * baseRate;
   };
   const handleBaseRateChange = (e) => {
     const value = parseFloat(e.target.value);
-    setBaseRate(value > 0 ? value : 0); // Update base rate or set it to 0 if invalid
+    setBaseRate(value > 0 ? value : 0); 
   };
 
 
   const calculateSubtotal = (pricePerGram, weight) => {
-    if (!weight || weight <= 0) return 0; // Ensure no invalid calculations
+    if (!weight || weight <= 0) return 0; 
     return pricePerGram * weight;
   };
 
@@ -78,8 +80,8 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
           }}
         >
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Price per 24 Carat (per gram):
-          </Typography>
+      {isXs ? "Price/24Carat" : "Price per 24 Carat (per gram)"}
+    </Typography>
           <TextField
             label="Price/24 Carat"
             type="number"
@@ -98,10 +100,10 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
               <TableRow>
                 <TableCell sx={{ borderBottom: "none" }}></TableCell>
                 <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                  Price/g
+                  Weight(g)
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                  Weight(g)
+                  Price/g
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none", color: "grey" }}>
                   Subtotal
@@ -119,11 +121,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
 
                 return (
                   <TableRow key={index}>
-                    <TableCell sx={{borderBottom:"none"}} >{row.Carat} Carat</TableCell>
-                    <TableCell sx={{borderBottom:"none"}} >
-                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                      {pricePerGram.toFixed(3)}
-                    </TableCell>
+                    <TableCell sx={{borderBottom:"none"}} >{row.carat_display} Carat</TableCell>
                     <TableCell sx={{borderBottom:"none"}}>
                       <TextField
                         variant="standard"
@@ -140,11 +138,22 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                         helperText={
                           weights[row.Carat] <= 0 ? "Must be greater than 0" : ""
                         }
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                        }}
                       />
                     </TableCell>
+                    <TableCell sx={{borderBottom:"none"}} >
+                    <Typography display="flex" alignItems="center">
+    <CurrencyPoundIcon sx={{ fontSize: "small", mr: 0.5 }} />
+    {pricePerGram.toFixed(3)}
+  </Typography>
+                    </TableCell>
                     <TableCell sx={{borderBottom:"none"}}>
-                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                      {subtotal.toFixed(3)}
+                    <Typography display="flex" alignItems="center">
+    <CurrencyPoundIcon sx={{ fontSize: "small", mr: 0.5 }} />
+    {subtotal.toFixed(3)}
+  </Typography>
                     </TableCell>
                     <TableCell sx={{borderBottom:"none"}}>
                       {!sharedRows.some(
