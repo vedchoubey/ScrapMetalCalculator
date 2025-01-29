@@ -9,6 +9,12 @@ export const InvoicePdf = ({ sharedRows }) => {
 
   const todayDate = new Date().toLocaleDateString("en-GB");
 
+  const totalSubtotal = sharedRows.reduce(
+    (total, row) => total + (parseFloat(row.subtotal) || 0),
+    0
+  );
+
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -99,11 +105,11 @@ export const InvoicePdf = ({ sharedRows }) => {
           {sharedRows.map((row, index) => (
             <View key={index} style={styles.row}>
               <Text style={styles.cell}></Text>
-              <Text style={styles.cell}>{row.Carat}</Text>
+              <Text style={styles.cell}>{row.Carat} Carat</Text>
               <Text style={styles.cell}>{row.weight}g</Text>
+              <Text style={styles.cell}>{row.pricePerGram.toFixed(3)}</Text>
               <Text style={styles.cell}></Text>
-              <Text style={styles.cell}></Text>
-              <Text style={styles.cell}>{row.subtotal}</Text>
+              <Text style={styles.cell}>{row.subtotal.toFixed(3)}</Text>
             </View>
           ))}
         </View>
@@ -182,8 +188,8 @@ export const InvoicePdf = ({ sharedRows }) => {
                     { marginLeft: 10 },
                   ]}
                 >
-                  {" "}
-                  <Text style={styles.boxValue}>{todayDate}</Text>
+                  {}
+                  <Text style={styles.boxValue}>{totalSubtotal.toFixed(3)}</Text>
                 </View>
               </View>
             </View>
