@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     color: "#808080",
     marginBottom: 10,
   },
+  
   line: {
     borderBottom: "1px dashed grey",
     marginVertical: 8,

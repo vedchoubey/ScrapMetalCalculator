@@ -5,6 +5,7 @@ import { SummaryCard } from "./SummaryCard";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
+import { AssayedBar } from "../AssayedBar";
 
 export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) => {
   const [baseRate, setBaseRate] = useState(70);
@@ -181,6 +182,14 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
             </TableBody>
           </Table>
         </TableContainer>
+
+        <AssayedBar 
+        baseRate={baseRate}
+        />
+
+
+
+
       </Card>
 
       <Box
