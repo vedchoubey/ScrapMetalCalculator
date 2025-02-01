@@ -14,6 +14,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePdf } from "../invoice/InvoicePdf";
 import Receipt from ".././Receipt";
@@ -21,7 +22,7 @@ import { ShortReceipt } from "../ShortReceipt";
 
 export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [showReceipt, setShowReceipt] = useState(false);
+ 
   const isDropdownOpen = Boolean(anchorEl);
 
   const handleDropdownClick = (event) => {
@@ -32,10 +33,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
     setAnchorEl(null);
   };
 
-  const handleReceiptGenerate = () => {
-    setShowReceipt(true);
-    handleDropdownClose();
-  };
+  
 
   const isSummaryEmpty = sharedRows.length === 0;
   const totalWeight = sharedRows.reduce(
@@ -199,6 +197,7 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                   },
                   width: { xs: "100%", md: "auto" },
                 }}
+                endIcon = {<ArrowDropDownIcon />}
               >
                 Generate Options
               </Button>
