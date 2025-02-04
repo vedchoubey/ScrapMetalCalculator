@@ -19,6 +19,8 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePdf } from "../invoice/InvoicePdf";
 import Receipt from ".././Receipt";
 import { ShortReceipt } from "../ShortReceipt";
+import { SummaryAssayed } from "../SummaryAssayed";
+
 
 export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -135,6 +137,11 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
                       </TableCell>
                     </TableRow>
                   ))}
+
+                  
+
+
+
                   <TableRow>
                     <TableCell
                       sx={{
@@ -276,6 +283,9 @@ export const SummaryCard = ({ sharedRows, resetSharedRows }) => {
           </>
         )}
       </CardContent>
+
+
+
     </Card>
   );
 };

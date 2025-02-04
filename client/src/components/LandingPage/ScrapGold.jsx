@@ -185,6 +185,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
 
         <AssayedBar 
         baseRate={baseRate}
+       
         />
 
 
