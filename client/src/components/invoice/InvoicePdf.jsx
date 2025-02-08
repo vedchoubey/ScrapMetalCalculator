@@ -107,7 +107,7 @@ export const InvoicePdf = ({ sharedRows }) => {
               <Text style={styles.cell}></Text>
               <Text style={styles.cell}>{row.Carat} Carat</Text>
               <Text style={styles.cell}>{row.weight}g</Text>
-              <Text style={styles.cell}>{row.pricePerGram}</Text>
+              <Text style={styles.cell}>{row.pricePerGram.toFixed(3)}</Text>
               <Text style={styles.cell}></Text>
               <Text style={styles.cell}>{row.subtotal.toFixed(3)}</Text>
             </View>

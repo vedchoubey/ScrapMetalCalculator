@@ -1,33 +1,56 @@
-import React, {useState} from "react";
-import {Box,Card,Paper,Table,TableBody,TableCell,TableContainer,TableHead,IconButton,TableRow,TextField,Typography} from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Card,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  InputAdornment,
+  TableContainer,
+  TableHead,
+  IconButton,
+  TableRow,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import cardData from "../../data/cardData.json";
 import { SummaryCard } from "./SummaryCard";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CurrencyPoundIcon from "@mui/icons-material/CurrencyPound";
+import { AssayedBar } from "../AssayedBar";
 
-export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) => {
-  const [baseRate, setBaseRate] = useState(5000);
+export const ScrapGold = ({
+  weights,
+  setWeights,
+  sharedRows,
+  setSharedRows,
+}) => {
+  const [baseRate, setBaseRate] = useState(70);
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
 
   const calculatePricePerGram = (carat) => {
-    if (!baseRate || baseRate <= 0) return 0; // Ensure no NaN or invalid calculations
+    if (!baseRate || baseRate <= 0) return 0;
     return (carat / 24) * baseRate;
   };
   const handleBaseRateChange = (e) => {
     const value = parseFloat(e.target.value);
-    setBaseRate(value > 0 ? value : 0); // Update base rate or set it to 0 if invalid
+    setBaseRate(value > 0 ? value : 0);
   };
 
-
   const calculateSubtotal = (pricePerGram, weight) => {
-    if (!weight || weight <= 0) return 0; // Ensure no invalid calculations
+    if (!weight || weight <= 0) return 0;
     return pricePerGram * weight;
   };
 
   const handleWeightChange = (Carat, value) => {
     setWeights((prev) => ({
       ...prev,
-      [Carat]: value > 0 ? value : "", 
+      [Carat]: value > 0 ? value : "",
     }));
   };
 
@@ -43,12 +66,24 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
     const pricePerGram = calculatePricePerGram(row.Carat);
 
     const subtotal = calculateSubtotal(pricePerGram, weightValue);
+    // Push the row data to the shared row list:
     setSharedRows((prev) => [
       ...prev,
       { ...row, pricePerGram, weight: weightValue, subtotal },
     ]);
   };
 
+  const handleAssayedBarChange = (type, purity, weight, subtotal) => {
+    console.log("======INSIDE THE ASSAYED BAR METHOD=======");
+    const sampleData = {
+      Carat: `${type}-${purity}`,
+      quantity: "",
+      weight: weight,
+      subtotal: subtotal,
+    };
+    // Push the assayed data to the shared row:
+    setSharedRows((prev) => [...prev, sampleData]);
+  };
   const handleUnshareRow = (Carat) => {
     setSharedRows((prev) => prev.filter((row) => row.Carat !== Carat));
   };
@@ -60,12 +95,21 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
 
   return (
     <Box
-      sx={{ display: "flex",flexDirection: { xs: "column", md: "row" }, gap: 3, px: { md: 2 },
-        py: { xs: 2, md: 4 }, justifyContent: "space-between",alignItems: { xs: "center", md: "flex-start" },
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        gap: 3,
+        px: { md: 2 },
+        py: { xs: 2, md: 4 },
+        justifyContent: "space-between",
+        alignItems: { xs: "center", md: "flex-start" },
       }}
     >
       <Card
-        sx={{borderRadius: 3, maxWidth: { xs: "100%", lg: 680 }, width: { xs: "100%", md: "90%" },
+        sx={{
+          borderRadius: 3,
+          maxWidth: { xs: "100%", lg: 680 },
+          width: { xs: "100%", md: "90%" },
           border: "1px solid #9966CC",
         }}
       >
@@ -78,7 +122,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
           }}
         >
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Price per 24 Carat (per gram):
+            {isXs ? "Price/24Carat" : "Price per 24 Carat (per gram)"}
           </Typography>
           <TextField
             label="Price/24 Carat"
@@ -91,17 +135,16 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
           />
         </Box>
 
-
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ borderBottom: "none" }}></TableCell>
                 <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                  Price/g
+                  Weight(g)
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                  Weight(g)
+                  Price/g
                 </TableCell>
                 <TableCell sx={{ borderBottom: "none", color: "grey" }}>
                   Subtotal
@@ -112,19 +155,17 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
               </TableRow>
             </TableHead>
             <TableBody>
-            {cardData.map((row, index) => {
+              {cardData.map((row, index) => {
                 const pricePerGram = calculatePricePerGram(row.Carat);
                 const weight = weights[row.Carat] || 0;
                 const subtotal = calculateSubtotal(pricePerGram, weight);
 
                 return (
                   <TableRow key={index}>
-                    <TableCell sx={{borderBottom:"none"}} >{row.Carat} Carat</TableCell>
-                    <TableCell sx={{borderBottom:"none"}} >
-                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                      {pricePerGram.toFixed(3)}
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      {row.carat_display} Carat
                     </TableCell>
-                    <TableCell sx={{borderBottom:"none"}}>
+                    <TableCell sx={{ borderBottom: "none" }}>
                       <TextField
                         variant="standard"
                         type="number"
@@ -138,22 +179,43 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                         }
                         error={weights[row.Carat] <= 0}
                         helperText={
-                          weights[row.Carat] <= 0 ? "Must be greater than 0" : ""
+                          weights[row.Carat] <= 0
+                            ? "Must be greater than 0"
+                            : ""
                         }
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">g</InputAdornment>
+                          ),
+                        }}
                       />
                     </TableCell>
-                    <TableCell sx={{borderBottom:"none"}}>
-                      <CurrencyPoundIcon sx={{ fontSize: "small" }} />
-                      {subtotal.toFixed(3)}
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      <Typography display="flex" alignItems="center">
+                        <CurrencyPoundIcon
+                          sx={{ fontSize: "small", mr: 0.5 }}
+                        />
+                        {pricePerGram.toFixed(3)}
+                      </Typography>
                     </TableCell>
-                    <TableCell sx={{borderBottom:"none"}}>
+                    <TableCell sx={{ borderBottom: "none" }}>
+                      <Typography display="flex" alignItems="center">
+                        <CurrencyPoundIcon
+                          sx={{ fontSize: "small", mr: 0.5 }}
+                        />
+                        {subtotal.toFixed(3)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ borderBottom: "none" }}>
                       {!sharedRows.some(
                         (sharedRow) => sharedRow.Carat === row.Carat
                       ) ? (
                         <IconButton
                           onClick={() => handleShareRow(index)}
                           color="primary"
-                          disabled={!weights[row.Carat] || weights[row.Carat] <= 0}
+                          disabled={
+                            !weights[row.Carat] || weights[row.Carat] <= 0
+                          }
                         >
                           <ArrowRightAltIcon />
                         </IconButton>
@@ -172,6 +234,15 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
             </TableBody>
           </Table>
         </TableContainer>
+
+        <AssayedBar baseRate={baseRate} />
+        {/* HANLDING THE ASSAYED BAR */}
+        <IconButton
+          onClick={() => handleAssayedBarChange("Assayed Bar", 90, 10, 700)}
+          color="primary"
+        >
+          <ArrowRightAltIcon />
+        </IconButton>
       </Card>
 
       <Box
@@ -187,9 +258,3 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
     </Box>
   );
 };
-
-
-
-
-
-
