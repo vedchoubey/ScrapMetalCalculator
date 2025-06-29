@@ -2,10 +2,10 @@ import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "./style";
 
-export const InvoicePdf = ({ sharedRows }) => {
-  const invoiceNumber = `${Math.floor(Math.random() * 1000000)}${
+export const InvoicePdf = ({ sharedRows, currency = "£", weightUnit = "g" }) => {
+  const invoiceNumber = `INV-${Math.floor(Math.random() * 1000000)}${
     Date.now() % 1000000
-  }`.slice(0, 8);
+  }`.slice(0, 12);
 
   const todayDate = new Date().toLocaleDateString("en-GB");
 
@@ -14,6 +14,10 @@ export const InvoicePdf = ({ sharedRows }) => {
     0
   );
 
+  const totalWeight = sharedRows.reduce(
+    (total, row) => total + (parseFloat(row.weight) || 0),
+    0
+  );
 
   return (
     <Document>
@@ -25,16 +29,15 @@ export const InvoicePdf = ({ sharedRows }) => {
             </View>
 
             <View style={[styles.spaceY, { marginTop: 25 }]}>
-              <Text>Hatton Garden Metals</Text>
-              <Text>11 St.Cross Street</Text>
-              <Text>Hatton Garden</Text>
-              <Text>London EC1N 8UB</Text>
+              <Text style={styles.businessInfo}>Hatton Garden Metals</Text>
+              <Text style={styles.businessInfo}>11 St.Cross Street</Text>
+              <Text style={styles.businessInfo}>Hatton Garden</Text>
+              <Text style={styles.businessInfo}>London EC1N 8UB</Text>
             </View>
 
-            <View style={[styles.spaceY, styles.boldText, { marginTop: 15 }]}>
-              {" "}
-              <Text>VAT Registration No: GB 926 1883 05</Text>
-              <Text>Telephone No: +44 (0)207 404 4000</Text>
+            <View style={[styles.spaceY, { marginTop: 15 }]}>
+              <Text style={styles.contactInfo}>VAT Registration No: GB 926 1883 05</Text>
+              <Text style={styles.contactInfo}>Telephone No: +44 (0)207 404 4000</Text>
             </View>
           </View>
 
@@ -44,152 +47,94 @@ export const InvoicePdf = ({ sharedRows }) => {
             </View>
 
             <View style={styles.invoiceDetails}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.boxLabel}>Invoice No.</Text>
-                <View
-                  style={[
-                    styles.boxContainer,
-                    { width: "100px" },
-                    { marginLeft: 10 },
-                  ]}
-                >
-                  <Text style={styles.boxValue}>{invoiceNumber}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Invoice No.</Text>
+                <View style={styles.totalBox}>
+                  <Text style={styles.totalValue}>{invoiceNumber}</Text>
                 </View>
               </View>
 
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.boxLabel}>Invoice Date</Text>
-                <View
-                  style={[
-                    styles.boxContainer,
-                    { width: "100px" },
-                    { marginLeft: 2 },
-                  ]}
-                >
-                  {" "}
-                  <Text style={styles.boxValue}>{todayDate}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Invoice Date</Text>
+                <View style={styles.totalBox}>
+                  <Text style={styles.totalValue}>{todayDate}</Text>
                 </View>
               </View>
 
-              <View
-                style={{
-                  flexDirection: "row",
-
-                  alignItems: "flex-start",
-                }}
-              >
-                <Text style={styles.boxLabel}>Invoice To:</Text>
-                <View style={[styles.boxContainer, styles.largeBox]}>
-                  {" "}
-                  <Text style={styles.boxValue}>{invoiceNumber}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Invoice To:</Text>
+                <View style={[styles.totalBox, styles.largeBox]}>
+                  <Text style={styles.totalValue}>Customer Details</Text>
                 </View>
               </View>
             </View>
           </View>
         </View>
-        <View style={[styles.parent, { justifyContent: "flex-start" }]}>
-          <Text>Customer No. </Text>
-          <Text>Customer VAT No. </Text>
+        
+        <View style={[styles.parent, { justifyContent: "flex-start", marginTop: 20, gap: 50 }]}>
+          <Text style={styles.boldText}>Customer No. ________________</Text>
+          <Text style={styles.boldText}>Customer VAT No. ________________</Text>
         </View>
 
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={styles.tableHeaderCell}>Enq #</Text>
             <Text style={styles.tableHeaderCell}>Fineness</Text>
-            <Text style={styles.tableHeaderCell}>Weight</Text>
-            <Text style={styles.tableHeaderCell}>Price Per G</Text>
+            <Text style={styles.tableHeaderCell}>Weight ({weightUnit})</Text>
+            <Text style={styles.tableHeaderCell}>Price Per {weightUnit} ({currency})</Text>
             <Text style={styles.tableHeaderCell}>VAT</Text>
-            <Text style={styles.tableHeaderCell}>Amount</Text>
+            <Text style={styles.tableHeaderCell}>Amount ({currency})</Text>
           </View>
 
           {sharedRows.map((row, index) => (
             <View key={index} style={styles.row}>
-              <Text style={styles.cell}></Text>
-              <Text style={styles.cell}>{row.Carat} Carat</Text>
-              <Text style={styles.cell}>{row.weight}g</Text>
-              <Text style={styles.cell}>{row.pricePerGram.toFixed(3)}</Text>
-              <Text style={styles.cell}></Text>
-              <Text style={styles.cell}>{row.subtotal.toFixed(3)}</Text>
+              <Text style={styles.cell}>{index + 1}</Text>
+              <Text style={styles.cell}>{row.Carat} Carat Gold</Text>
+              <Text style={styles.cell}>{row.weight}{weightUnit}</Text>
+              <Text style={styles.cell}>{currency}{row.pricePerGram?.toFixed(3) || "0.000"}</Text>
+              <Text style={styles.cell}>0%</Text>
+              <Text style={styles.cell}>{currency}{row.subtotal?.toFixed(2) || "0.00"}</Text>
             </View>
           ))}
         </View>
-        <View
-          style={{
-            width: "100%",
-            border: "1px solid #000",
-            padding: 10,
-            marginTop: 30,
-          }}
-        >
+        
+        <View style={styles.totalSection}>
           <View style={styles.parent}>
-            <View style={{ marginTop: 12 }}>
-              <Text>THE OUTPUT TAX ON THIS SUPPLY OF</Text>
-              <Text>GOLD TO BE ACCOUNTED FOR TO H.M.</Text>
-              <Text>CUSTOM AND EXCISE BY THE BUYER,</Text>
-              <Text>THE SUM BEING:</Text>
-              <View style={styles.paymentDetails}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.boxLabel}></Text>
-                  <View
-                    style={[
-                      styles.boxContainer,
-                      { width: "100px" },
-                      { marginLeft: 10 },
-                    ]}
-                  >
-                    <Text style={styles.boxValue}>{invoiceNumber}</Text>
-                  </View>
-                </View>
-
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.boxLabel}>Payment:</Text>
-                  <View
-                    style={[
-                      styles.boxContainer,
-                      { width: "100px" },
-                      { marginLeft: 2 },
-                    ]}
-                  >
-                    {" "}
-                    <Text style={styles.boxValue}>{invoiceNumber}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.vatNotice}>THE OUTPUT TAX ON THIS SUPPLY OF</Text>
+              <Text style={styles.vatNotice}>GOLD TO BE ACCOUNTED FOR TO H.M.</Text>
+              <Text style={styles.vatNotice}>CUSTOM AND EXCISE BY THE BUYER,</Text>
+              <Text style={styles.vatNotice}>THE SUM BEING:</Text>
+              
+              <View style={[styles.paymentDetails, { marginTop: 15 }]}>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Payment:</Text>
+                  <View style={styles.totalBox}>
+                    <Text style={styles.totalValue}>Cash</Text>
                   </View>
                 </View>
               </View>
             </View>
 
-            <View style={[styles.invoiceDetails, { marginTop: 12 }]}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.boxLabel}>Net</Text>
-                <View
-                  style={[
-                    styles.boxContainer,
-                    { width: "100px" },
-                    { marginLeft: 17 },
-                  ]}
-                >
-                  <Text style={styles.boxValue}>{invoiceNumber}</Text>
+            <View style={{ flex: 1, alignItems: "flex-end" }}>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Net</Text>
+                <View style={styles.totalBox}>
+                  <Text style={styles.totalValue}>{currency}{totalSubtotal.toFixed(2)}</Text>
                 </View>
               </View>
 
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.boxLabel}>VAT @</Text>
-                <View style={[styles.boxContainer, { width: "100px" }]}>
-                  {" "}
-                  <Text style={styles.boxValue}>{todayDate}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>VAT @ 0%</Text>
+                <View style={styles.totalBox}>
+                  <Text style={styles.totalValue}>{currency}0.00</Text>
                 </View>
               </View>
 
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.boxLabel}>Total</Text>
-                <View
-                  style={[
-                    styles.boxContainer,
-                    { width: "100px" },
-                    { marginLeft: 10 },
-                  ]}
-                >
-                  {}
-                  <Text style={styles.boxValue}>{totalSubtotal.toFixed(3)}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Total</Text>
+                <View style={[styles.totalBox, { backgroundColor: "#34495e" }]}>
+                  <Text style={[styles.totalValue, { color: "#ffffff", fontWeight: 700 }]}>{currency}{totalSubtotal.toFixed(2)}</Text>
                 </View>
               </View>
             </View>
