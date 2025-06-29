@@ -19,6 +19,8 @@ export const InvoicePdf = ({ sharedRows, currency = "£", weightUnit = "g" }) =>
     0
   );
 
+  const vatRate = 0; // VAT rate for gold is 0%
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
