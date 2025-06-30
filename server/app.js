@@ -6,7 +6,7 @@ const dotenv = require("dotenv").config();
 const metalConfig = require("./routes/metalConfigData");
 
 // Creating express app:
-app = express();
+const app = express();
 const port = process.env.PORT || 4000;
 
 // MIDDLEWARES:
@@ -15,8 +15,13 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json());
 
 //ROUTES:
-app.use("/", metalConfig);
+app.use("/api", metalConfig);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// For Vercel deployment
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+module.exports = app;

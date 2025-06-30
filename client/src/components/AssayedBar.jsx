@@ -7,99 +7,546 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
+  useMediaQuery,
+  Card,
+  CardContent,
+  Grid,
+  InputAdornment,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
-export const AssayedBar = ({ baseRate }) => {
-  const [purity, setPurity] = useState("");
-  const [weight, setWeight] = useState("");
+export const AssayedBar = ({ 
+  baseRate,
+  onAssayedBarChange,
+  initialPurity = "",
+  initialWeight = "",
+  disabled = false,
+  currency = 'GBP',
+  weightUnit = 'gram'
+}) => {
+  const [purity, setPurity] = useState(initialPurity);
+  const [weight, setWeight] = useState(initialWeight);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const handlePurityChange = (e) => {
+  // Helper functions for currency and weight unit
+  const getCurrencySymbol = () => {
+    const symbols = {
+      'GBP': '£',
+      'USD': '$',
+      'EUR': '€'
+    };
+    return symbols[currency] || currency;
+  };
+
+  const getWeightUnitLabel = () => {
+    return weightUnit === 'gram' ? 'g' : weightUnit === 'ounce' ? 'oz' : weightUnit === 'kilogram' ? 'kg' : weightUnit;
+  };
+
+  const handlePurityChange = useCallback((e) => {
     let value = e.target.value;
 
-    if (/^\d{0,3}(\.\d{0,2})?$/.test(value)) {
-      if (parseFloat(value) > 100) return;
-      setPurity(value);
+    // Allow empty string or valid decimal number up to 3 digits with 2 decimal places
+    if (value === "" || /^\d{0,3}(\.\d{0,2})?$/.test(value)) {
+      const numValue = parseFloat(value);
+      if (value === "" || (numValue >= 0 && numValue <= 100)) {
+        setPurity(value);
+      }
     }
-  };
+  }, []);
 
-  const handleWeightChange = (e) => {
-    setWeight(e.target.value);
-  };
+  const handleWeightChange = useCallback((e) => {
+    let value = e.target.value;
+    
+    // Allow empty string or valid decimal number
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      const numValue = parseFloat(value);
+      if (value === "" || (numValue >= 0 && numValue <= 99999)) {
+        setWeight(value);
+      }
+    }
+  }, []);
 
-  const pricePerGram = purity ? (parseFloat(purity) * baseRate) / 100 : 0;
-  const subtotal = weight ? parseFloat(weight) * pricePerGram : 0;
+  const pricePerGram = purity && !isNaN(parseFloat(purity)) 
+    ? (parseFloat(purity) * baseRate) / 100 
+    : 0;
+  const subtotal = weight && !isNaN(parseFloat(weight)) && pricePerGram > 0
+    ? parseFloat(weight) * pricePerGram 
+    : 0;
 
-  return (
-    <>
-      <Box sx={{ overflowX: "auto" }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ borderBottom: "none" }}></TableCell>
-              <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                Price/g
-              </TableCell>
-              <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                Purity
-              </TableCell>
-              <TableCell sx={{ borderBottom: "none", color: "grey" }}>
-                Weight
-              </TableCell>
-              <TableCell sx={{ borderBottom: "none", color: "grey" }}>
+  // Notify parent component of changes
+  useEffect(() => {
+    if (onAssayedBarChange) {
+      onAssayedBarChange({
+        purity: purity ? parseFloat(purity) : 0,
+        weight: weight ? parseFloat(weight) : 0,
+        pricePerGram,
+        subtotal
+      });
+    }
+  }, [purity, weight, pricePerGram, subtotal]); // Removed onAssayedBarChange from dependencies
+
+  // Mobile card layout for extra small screens
+  if (isXs) {
+    return (
+      <Card sx={{ 
+        background: "linear-gradient(135deg, #ffffff 0%, #fefefe 30%, #fdfdfc 70%, #fbfbfa 100%)",
+        border: '2px solid #e5ddd5',
+        borderRadius: 4,
+        overflow: 'hidden',
+        boxShadow: "0 8px 24px rgba(139, 115, 85, 0.1), 0 4px 8px rgba(139, 115, 85, 0.06)",
+        transition: "all 0.3s ease-in-out",
+        "&:hover": {
+          boxShadow: "0 12px 32px rgba(139, 115, 85, 0.15), 0 6px 12px rgba(139, 115, 85, 0.08)",
+          borderColor: "#d4c4b0"
+        }
+      }}>
+        <CardContent sx={{ padding: '20px !important' }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontSize: { xs: "1.1rem", sm: "1.2rem" }, 
+              fontWeight: '700',
+              marginBottom: 3,
+              color: '#451a03',
+              textAlign: 'center',
+              letterSpacing: "0.5px",
+              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+            }}
+          >
+            Assayed Bar
+          </Typography>
+          
+          <Grid container spacing={2.5}>
+            <Grid item xs={6}>
+              <Typography variant="body2" sx={{ 
+                color: '#92400e', 
+                marginBottom: 1.5, 
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Purity (%)
+              </Typography>
+              <OutlinedInput
+                value={purity}
+                onChange={handlePurityChange}
+                placeholder="0.00"
+                disabled={disabled}
+                fullWidth
+                endAdornment={
+                  <InputAdornment position="end">
+                    <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.875rem" }}>%</Typography>
+                  </InputAdornment>
+                }
+                sx={{
+                  height: "48px",
+                  fontSize: "1rem",
+                  fontWeight: "700",
+                  borderRadius: 3,
+                  background: "#fefcf3",
+                  '& .MuiInputBase-input': {
+                    textAlign: 'center',
+                    color: "#451a03"
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#d97706",
+                    borderWidth: "2px"
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#92400e"
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#451a03",
+                    borderWidth: "2px"
+                  }
+                }}
+              />
+            </Grid>
+            
+            <Grid item xs={6}>
+              <Typography variant="body2" sx={{ 
+                color: '#92400e', 
+                marginBottom: 1.5, 
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Weight ({getWeightUnitLabel()})
+              </Typography>
+              <OutlinedInput
+                value={weight}
+                onChange={handleWeightChange}
+                placeholder="0.000"
+                disabled={disabled}
+                fullWidth
+                endAdornment={
+                  <InputAdornment position="end">
+                    <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.875rem" }}>{getWeightUnitLabel()}</Typography>
+                  </InputAdornment>
+                }
+                sx={{
+                  height: "48px",
+                  fontSize: "1rem",
+                  fontWeight: "700",
+                  borderRadius: 3,
+                  background: "#fefcf3",
+                  '& .MuiInputBase-input': {
+                    textAlign: 'center',
+                    color: "#451a03"
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#d97706",
+                    borderWidth: "2px"
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#92400e"
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#451a03",
+                    borderWidth: "2px"
+                  }
+                }}
+              />
+            </Grid>
+            
+            <Grid item xs={6}>
+              <Typography variant="body2" sx={{ 
+                color: '#92400e', 
+                marginBottom: 1.5, 
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
+                Price/{getWeightUnitLabel()}
+              </Typography>
+              <Box 
+                sx={{
+                  display: "flex", 
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)",
+                  color: "#1a0f00",
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: 3,
+                  border: "2px solid #8b4513",
+                  boxShadow: "0 3px 8px rgba(218, 165, 32, 0.3), inset 0 1px 0 rgba(255, 235, 74, 0.4)",
+                  minHeight: "48px"
+                }}
+              >
+                <Typography 
+                  sx={{ 
+                    fontSize: "1rem", 
+                    fontWeight: "700",
+                    textAlign: 'center'
+                  }}
+                >
+                  {getCurrencySymbol()}{pricePerGram.toFixed(3)}
+                </Typography>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={6}>
+              <Typography variant="body2" sx={{ 
+                color: '#92400e', 
+                marginBottom: 1.5, 
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}>
                 Subtotal
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell>
-                <Typography sx={{ fontSize: 20, fontWeight: 750 }}>
-                  Assayed Bar
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
-                  {pricePerGram.toFixed(3)}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <OutlinedInput
-                  value={purity}
-                  onChange={handlePurityChange}
-                  placeholder="Purity"
-                  sx={{
-                    width: "80px",
-                    height: "50px",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                    borderRadius: "8px",
+              </Typography>
+              <Box 
+                sx={{
+                  display: "flex", 
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: subtotal > 0 
+                    ? "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)"
+                    : "linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)",
+                  color: "white",
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: 3,
+                  border: subtotal > 0 ? "2px solid #065f46" : "2px solid #6b7280",
+                  boxShadow: subtotal > 0 
+                    ? "0 3px 8px rgba(5, 150, 105, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.3)" 
+                    : "0 2px 4px rgba(107, 114, 128, 0.2)",
+                  minHeight: "48px"
+                }}
+              >
+                <Typography 
+                  sx={{ 
+                    fontSize: "1rem", 
+                    fontWeight: "700",
+                    textAlign: 'center'
                   }}
-                />
-              </TableCell>
-              <TableCell>
-                <OutlinedInput
-                  value={weight}
-                  onChange={handleWeightChange}
-                  sx={{
-                    width: "80px",
-                    height: "50px",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                    borderRadius: "8px",
-                  }}
-                  placeholder="Weight"
-                />
-              </TableCell>
-              <TableCell>
-                <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
-                  {subtotal.toFixed(3)}
+                >
+                  {getCurrencySymbol()}{subtotal.toFixed(2)}
                 </Typography>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Box>
-    </>
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Table layout for larger screens
+  return (
+    <Box sx={{ 
+      overflowX: "auto",
+      background: "linear-gradient(135deg, #ffffff 0%, #fefefe 30%, #fdfdfc 70%, #fbfbfa 100%)",
+      borderRadius: 4,
+      border: "2px solid #e5ddd5",
+      boxShadow: "0 8px 24px rgba(139, 115, 85, 0.1), 0 4px 8px rgba(139, 115, 85, 0.06)",
+      transition: "all 0.3s ease-in-out",
+      "&:hover": {
+        boxShadow: "0 12px 32px rgba(139, 115, 85, 0.15), 0 6px 12px rgba(139, 115, 85, 0.08)",
+        borderColor: "#d4c4b0"
+      }
+    }}>
+      <Table sx={{ minWidth: isMobile ? 350 : 650 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ 
+              borderBottom: "3px solid #b8860b", 
+              bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+              fontWeight: "800",
+              color: "#451a03",
+              fontSize: { xs: "0.8rem", md: "0.875rem" },
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+              minWidth: isMobile ? 100 : 140,
+              py: 2
+            }}>
+              Metal Type
+            </TableCell>
+            <TableCell sx={{ 
+              borderBottom: "3px solid #b8860b", 
+              bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+              fontWeight: "800",
+              color: "#451a03",
+              fontSize: { xs: "0.8rem", md: "0.875rem" },
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+              minWidth: isMobile ? 80 : 100,
+              py: 2
+            }}>
+              Purity (%)
+            </TableCell>
+            <TableCell sx={{ 
+              borderBottom: "3px solid #b8860b", 
+              bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+              fontWeight: "800",
+              color: "#451a03",
+              fontSize: { xs: "0.8rem", md: "0.875rem" },
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+              minWidth: isMobile ? 90 : 110,
+              py: 2
+            }}>
+              Weight ({getWeightUnitLabel()})
+            </TableCell>
+            <TableCell sx={{ 
+              borderBottom: "3px solid #b8860b", 
+              bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+              fontWeight: "800",
+              color: "#451a03",
+              fontSize: { xs: "0.8rem", md: "0.875rem" },
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+              minWidth: isMobile ? 90 : 110,
+              py: 2
+            }}>
+              Rate ({getCurrencySymbol()}/{getWeightUnitLabel()})
+            </TableCell>
+            <TableCell sx={{ 
+              borderBottom: "3px solid #b8860b", 
+              bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+              fontWeight: "800",
+              color: "#451a03",
+              fontSize: { xs: "0.8rem", md: "0.875rem" },
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+              minWidth: isMobile ? 90 : 110,
+              py: 2
+            }}>
+              Value ({getCurrencySymbol()})
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow sx={{
+            bgcolor: "#fef7ed",
+            "&:hover": {
+              bgcolor: "#f3e8d6",
+              transition: "background-color 0.2s ease"
+            }
+          }}>
+            <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 2 }}>
+              <Typography sx={{ 
+                fontSize: { xs: "0.875rem", md: "1rem" }, 
+                fontWeight: '700',
+                color: '#451a03',
+                letterSpacing: "0.5px"
+              }}>
+                Assayed Bar
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: "#92400e",
+                  fontSize: { xs: "0.7rem", md: "0.75rem" },
+                  fontStyle: "italic",
+                  fontWeight: "500"
+                }}
+              >
+                Custom Purity
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 2 }}>
+              <OutlinedInput
+                value={purity}
+                onChange={handlePurityChange}
+                placeholder="0.00"
+                disabled={disabled}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.875rem" }}>%</Typography>
+                  </InputAdornment>
+                }
+                sx={{
+                  width: isMobile ? "75px" : "95px",
+                  height: isMobile ? "44px" : "52px",
+                  fontSize: isMobile ? "0.875rem" : "1rem",
+                  fontWeight: "700",
+                  borderRadius: 3,
+                  background: "#fefcf3",
+                  '& .MuiInputBase-input': {
+                    textAlign: 'center',
+                    color: "#451a03"
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#d97706",
+                    borderWidth: "2px"
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#92400e"
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#451a03",
+                    borderWidth: "2px"
+                  }
+                }}
+              />
+            </TableCell>
+            <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 2 }}>
+              <OutlinedInput
+                value={weight}
+                onChange={handleWeightChange}
+                placeholder="0.000"
+                disabled={disabled}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.875rem" }}>{getWeightUnitLabel()}</Typography>
+                  </InputAdornment>
+                }
+                sx={{
+                  width: isMobile ? "85px" : "105px",
+                  height: isMobile ? "44px" : "52px",
+                  fontSize: isMobile ? "0.875rem" : "1rem",
+                  fontWeight: "700",
+                  borderRadius: 3,
+                  background: "#fefcf3",
+                  '& .MuiInputBase-input': {
+                    textAlign: 'center',
+                    color: "#451a03"
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#d97706",
+                    borderWidth: "2px"
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#92400e"
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#451a03",
+                    borderWidth: "2px"
+                  }
+                }}
+              />
+            </TableCell>
+            <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 2 }}>
+              <Box 
+                sx={{
+                  display: "flex", 
+                  alignItems: "center",
+                  background: "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)",
+                  color: "#1a0f00",
+                  px: { xs: 1, md: 1.5 },
+                  py: { xs: 0.5, md: 0.75 },
+                  borderRadius: 2,
+                  width: "fit-content",
+                  border: "2px solid #8b4513",
+                  boxShadow: "0 3px 8px rgba(218, 165, 32, 0.3), inset 0 1px 0 rgba(255, 235, 74, 0.4)"
+                }}
+              >
+                <Typography sx={{ 
+                  fontSize: { xs: "0.8rem", md: "0.9rem" }, 
+                  fontWeight: "700"
+                }}>
+                  {getCurrencySymbol()}{pricePerGram.toFixed(3)}
+                </Typography>
+              </Box>
+            </TableCell>
+            <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 2 }}>
+              <Box 
+                sx={{
+                  display: "flex", 
+                  alignItems: "center",
+                  background: subtotal > 0 
+                    ? "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)"
+                    : "linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)",
+                  color: "white",
+                  px: { xs: 1, md: 1.5 },
+                  py: { xs: 0.5, md: 0.75 },
+                  borderRadius: 2,
+                  width: "fit-content",
+                  border: subtotal > 0 ? "2px solid #065f46" : "2px solid #6b7280",
+                  boxShadow: subtotal > 0 
+                    ? "0 3px 8px rgba(5, 150, 105, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.3)" 
+                    : "0 2px 4px rgba(107, 114, 128, 0.2)"
+                }}
+              >
+                <Typography sx={{ 
+                  fontSize: { xs: "0.8rem", md: "0.9rem" }, 
+                  fontWeight: "700"
+                }}>
+                  {getCurrencySymbol()}{subtotal.toFixed(2)}
+                </Typography>
+              </Box>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </Box>
   );
 };
