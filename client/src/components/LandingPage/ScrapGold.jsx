@@ -12,6 +12,7 @@ import { PriceAdjustments } from "../PriceAdjustments";
 
 export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) => {
   const [baseRate, setBaseRate] = useState(70);
+  const [percentageAdjustment, setPercentageAdjustment] = useState(100); // New state for percentage adjustment
   const [isEditMode, setIsEditMode] = useState(false);
   const [goldConfig, setGoldConfig] = useState([]);
   const [editConfig, setEditConfig] = useState([]);
@@ -104,9 +105,12 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
     
     let effectiveBaseRate = baseRate;
     
+    // Apply percentage adjustment first (for scrap price adjustments from SPOT price)
+    effectiveBaseRate = effectiveBaseRate * (percentageAdjustment / 100);
+    
     // Apply gold price adjustments if available
     if (priceAdjustments.metals?.gold?.adjustment) {
-      effectiveBaseRate = Math.max(0, baseRate - priceAdjustments.metals.gold.adjustment);
+      effectiveBaseRate = Math.max(0, effectiveBaseRate - priceAdjustments.metals.gold.adjustment);
     }
     
     const percentage = customPercentage !== null ? customPercentage : 
@@ -136,13 +140,19 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
 
   // Calculate price per selected unit (converts from grams)
   const calculatePricePerUnit = (carat, customPercentage = null) => {
-    if (!baseRate || baseRate <= 0) return 0;
+    const numericBaseRate = baseRate === '' ? 0 : parseFloat(baseRate) || 0;
+    const numericPercentageAdjustment = percentageAdjustment === '' ? 100 : parseFloat(percentageAdjustment) || 100;
     
-    let effectiveBaseRate = baseRate;
+    if (!numericBaseRate || numericBaseRate <= 0) return 0;
+    
+    let effectiveBaseRate = numericBaseRate;
+    
+    // Apply percentage adjustment first (for scrap price adjustments from SPOT price)
+    effectiveBaseRate = effectiveBaseRate * (numericPercentageAdjustment / 100);
     
     // Apply gold price adjustments if available
     if (priceAdjustments.metals?.gold?.adjustment) {
-      effectiveBaseRate = Math.max(0, baseRate - priceAdjustments.metals.gold.adjustment);
+      effectiveBaseRate = Math.max(0, effectiveBaseRate - priceAdjustments.metals.gold.adjustment);
     }
     
     const percentage = customPercentage !== null ? customPercentage : 
@@ -157,13 +167,26 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
 
   const handleBaseRateChange = (e) => {
     const value = e.target.value;
-    // Allow empty string or valid numbers without leading zeros
-    if (value === '' || value === '0') {
-      setBaseRate(0);
+    // Allow empty string
+    if (value === '') {
+      setBaseRate('');
     } else {
       const numValue = parseFloat(value);
       if (!isNaN(numValue) && numValue >= 0) {
         setBaseRate(numValue);
+      }
+    }
+  };
+
+  const handlePercentageAdjustmentChange = (e) => {
+    const value = e.target.value;
+    // Allow empty string
+    if (value === '') {
+      setPercentageAdjustment('');
+    } else {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
+        setPercentageAdjustment(numValue);
       }
     }
   };
@@ -289,6 +312,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
         purity: data.purity,
         weight: data.weight,
         pricePerUnit: data.pricePerGram,
+        pricePerGram: data.pricePerGram, // Ensure consistency with regular gold items
         subtotal: data.subtotal,
         quantity: 1,
         type: 'assayed'
@@ -353,8 +377,10 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
         id: Date.now() + Math.random(), // Unique ID for each entry
         weight: weight,
         pricePerUnit: pricePerUnit,
+        pricePerGram: pricePerUnit, // Ensure consistency with assayed bars
         subtotal: subtotal,
-        quantity: 1 // Add quantity field
+        quantity: 1, // Add quantity field
+        type: 'gold' // Add type field for consistency
       };
       
       setSharedRows(prev => [...prev, sharedRow]);
@@ -382,7 +408,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
   };
 
   return (
-    <Box      sx={{
+    <Box sx={{
         display: "flex",
         flexDirection: { xs: "column", lg: "row" },
         gap: { xs: 1.5, md: 3 }, 
@@ -559,146 +585,291 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
           {/* Right Side - Price Input and Action Buttons */}
           <Box sx={{ 
             display: "flex", 
-            gap: { xs: 2, sm: 2 }, 
-            alignItems: "center",
-            flexDirection: { xs: "column", sm: "row" },
-            width: { xs: "100%", sm: "auto" },
+            gap: { xs: 1.5, sm: 2 }, 
+            alignItems: "stretch",
+            flexDirection: { xs: "column", md: "row" },
+            flexWrap: { xs: "nowrap", lg: "wrap" },
+            width: { xs: "100%", md: "auto" },
             zIndex: 1
           }}>
-            <TextField
-              label={`Gold Price (24K/${getWeightUnitLabel()})`}
-              type="number"
-              variant="outlined"
-              size="medium"
-              value={baseRate}
-              onChange={handleBaseRateChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Typography sx={{ 
-                      color: "#8b4513", 
-                      fontSize: { xs: "1.2rem", md: "1.4rem" },
-                      fontWeight: "900",
-                      textShadow: "0 1px 3px rgba(218, 165, 32, 0.4)",
-                      filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))"
-                    }}>
-                      {getCurrencySymbol()}
-                    </Typography>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ 
-                width: { xs: "100%", sm: "200px", md: "220px" },
-                "& .MuiOutlinedInput-root": {
-                  background: "linear-gradient(135deg, #fff8dc 0%, #fefdf7 50%, #fffaf0 100%)",
-                  borderRadius: 4,
-                  fontSize: { xs: "1rem", md: "1.1rem" },
-                  fontWeight: "800",
-                  boxShadow: "0 8px 24px rgba(218, 165, 32, 0.3), inset 0 2px 0 rgba(255, 215, 0, 0.2), inset 0 -1px 0 rgba(139, 69, 19, 0.1)",
-                  height: "56px",
-                  "& fieldset": {
-                    borderColor: "#b8860b",
-                    borderWidth: "2px"
+            {/* Gold Price Input */}
+            <Box sx={{ 
+              display: "flex", 
+              flexDirection: { xs: "column", sm: "row" }, 
+              gap: { xs: 1, sm: 1.5 },
+              alignItems: { xs: "stretch", sm: "center" },
+              width: { xs: "100%", md: "auto" }
+            }}>
+              <TextField
+                label={`Gold Price (24K/${getWeightUnitLabel()})`}
+                type="number"
+                variant="outlined"
+                size="medium"
+                value={baseRate}
+                onChange={handleBaseRateChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Typography sx={{ 
+                        color: "#ffffff", 
+                        fontSize: { xs: "1rem", md: "1.2rem" },
+                        fontWeight: "800",
+                        textShadow: "0 1px 3px rgba(139, 69, 19, 0.8)",
+                        background: "rgba(139, 69, 19, 0.25)",
+                        padding: "2px 6px",
+                        borderRadius: "4px"
+                      }}>
+                        {getCurrencySymbol()}
+                      </Typography>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ 
+                  width: { xs: "100%", sm: "180px", md: "200px" },
+                  "& .MuiOutlinedInput-root": {
+                    background: "linear-gradient(135deg, #fff8dc 0%, #fefdf7 50%, #fffaf0 100%)",
+                    borderRadius: 2,
+                    fontSize: { xs: "0.9rem", md: "1rem" },
+                    fontWeight: "700",
+                    boxShadow: "0 4px 12px rgba(218, 165, 32, 0.2), inset 0 1px 0 rgba(255, 215, 0, 0.15)",
+                    height: { xs: "48px", md: "52px" },
+                    "& fieldset": {
+                      borderColor: "#b8860b",
+                      borderWidth: "1.5px"
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#8b4513",
+                      borderWidth: "2px",
+                      boxShadow: "0 0 8px rgba(218, 165, 32, 0.3)"
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#5d4e37",
+                      borderWidth: "2px",
+                      boxShadow: "0 0 12px rgba(255, 215, 0, 0.4)"
+                    }
                   },
-                  "&:hover fieldset": {
-                    borderColor: "#8b4513",
-                    borderWidth: "3px",
-                    boxShadow: "0 0 16px rgba(218, 165, 32, 0.4)"
+                  "& .MuiInputLabel-root": {
+                    color: "#ffffff",
+                    fontSize: { xs: "0.8rem", md: "0.9rem" },
+                    fontWeight: "800",
+                    textShadow: "0 1px 3px rgba(139, 69, 19, 0.9)",
+                    background: "rgba(139, 69, 19, 0.25)",
+                    padding: "2px 8px",
+                    borderRadius: "6px",
+                    "&.Mui-focused": {
+                      color: "#ffffff",
+                      fontWeight: "800",
+                      background: "rgba(139, 69, 19, 0.35)",
+                    }
                   },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#5d4e37",
-                    borderWidth: "3px",
-                    boxShadow: "0 0 20px rgba(255, 215, 0, 0.5)"
+                  "& .MuiOutlinedInput-input": {
+                    color: "#663300",
+                    fontWeight: "800",
+                    fontSize: { xs: "0.9rem", md: "1rem" },
+                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    },
+                    '&[type=number]': {
+                      MozAppearance: 'textfield'
+                    }
                   }
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#8b4513",
+                }}
+              />
+              
+              {/* Scrap Adjustment Field */}
+              <TextField
+                label="Scrap Adjustment"
+                type="number"
+                variant="outlined"
+                size="medium"
+                value={percentageAdjustment}
+                onChange={handlePercentageAdjustmentChange}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Typography sx={{ 
+                        color: "#ffffff", 
+                        fontSize: { xs: "1rem", md: "1.2rem" },
+                        fontWeight: "800",
+                        textShadow: "0 1px 3px rgba(139, 69, 19, 0.8)",
+                        background: "rgba(139, 69, 19, 0.25)",
+                        padding: "2px 6px",
+                        borderRadius: "4px"
+                      }}>
+                        %
+                      </Typography>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ 
+                  width: { xs: "100%", sm: "130px", md: "150px" },
+                  "& .MuiOutlinedInput-root": {
+                    background: "linear-gradient(135deg, #fff8dc 0%, #fefdf7 50%, #fffaf0 100%)",
+                    borderRadius: 2,
+                    fontSize: { xs: "0.9rem", md: "1rem" },
+                    fontWeight: "700",
+                    boxShadow: "0 4px 12px rgba(218, 165, 32, 0.15), inset 0 1px 0 rgba(255, 215, 0, 0.1)",
+                    height: { xs: "48px", md: "52px" },
+                    "& fieldset": {
+                      borderColor: "#b8860b",
+                      borderWidth: "1.5px"
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#8b4513",
+                      borderWidth: "2px",
+                      boxShadow: "0 0 8px rgba(218, 165, 32, 0.25)"
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#5d4e37",
+                      borderWidth: "2px",
+                      boxShadow: "0 0 12px rgba(255, 215, 0, 0.35)"
+                    }
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#ffffff",
+                    fontSize: { xs: "0.8rem", md: "0.9rem" },
+                    fontWeight: "800",
+                    textShadow: "0 1px 3px rgba(139, 69, 19, 0.9)",
+                    background: "rgba(139, 69, 19, 0.25)",
+                    padding: "2px 8px",
+                    borderRadius: "6px",
+                    "&.Mui-focused": {
+                      color: "#ffffff",
+                      fontWeight: "800",
+                      background: "rgba(139, 69, 19, 0.35)",
+                    }
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#663300",
+                    fontWeight: "800",
+                    fontSize: { xs: "0.9rem", md: "1rem" },
+                    textAlign: "center",
+                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    },
+                    '&[type=number]': {
+                      MozAppearance: 'textfield'
+                    }
+                  }
+                }}
+              />
+            </Box>
+            
+            {/* Effective Rate Display */}
+            {(baseRate !== '' && baseRate > 0) && (percentageAdjustment !== '' && percentageAdjustment > 0) && (
+              <Box sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #e8f5e8 0%, #f0fff0 50%, #f5fffa 100%)",
+                borderRadius: 2,
+                border: "2px solid #32cd32",
+                padding: { xs: 1, md: 1.5 },
+                minWidth: { xs: "100%", sm: "130px", md: "140px" },
+                maxWidth: { xs: "100%", sm: "140px" },
+                boxShadow: "0 3px 10px rgba(50, 205, 50, 0.15)",
+                height: { xs: "48px", md: "52px" }
+              }}>
+                <Typography sx={{
+                  fontSize: { xs: "0.65rem", md: "0.75rem" },
+                  fontWeight: "600",
+                  color: "#228b22",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.3px",
+                  lineHeight: 1,
+                  marginBottom: "2px"
+                }}>
+                  Effective Rate
+                </Typography>
+                <Typography sx={{
                   fontSize: { xs: "0.9rem", md: "1rem" },
-                  fontWeight: "700",
-                  "&.Mui-focused": {
-                    color: "#5d4e37",
-                    fontWeight: "800"
-                  }
-                },
-                "& .MuiOutlinedInput-input": {
-                  color: "#1a0f00",
-                  fontWeight: "900",
-                  fontSize: { xs: "1rem", md: "1.2rem" },
-                  // Hide number input spinner arrows
-                  '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                    WebkitAppearance: 'none',
-                    margin: 0
-                  },
-                  '&[type=number]': {
-                    MozAppearance: 'textfield' // Firefox
-                  }
-                }
-              }}
-            />
+                  fontWeight: "800",
+                  color: "#006400",
+                  lineHeight: 1
+                }}>
+                  {getCurrencySymbol()}{((parseFloat(baseRate) || 0) * ((parseFloat(percentageAdjustment) || 100) / 100)).toFixed(2)}
+                </Typography>
+              </Box>
+            )}
             
             {/* Action Buttons */}
-            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+            <Box sx={{ 
+              display: "flex", 
+              gap: { xs: 1, md: 1.5 }, 
+              alignItems: "center",
+              justifyContent: { xs: "center", md: "flex-start" },
+              width: { xs: "100%", md: "auto" }
+            }}>
               <IconButton 
                 onClick={handleEditClick}
-                size="large"
+                size="medium"
                 sx={{ 
                   background: "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #fff8dc 100%)", 
                   color: "#1a0f00",
-                  borderRadius: 4,
-                  padding: 2,
-                  transition: "all 0.3s ease",
-                  border: "3px solid #8b4513",
-                  boxShadow: "0 8px 24px rgba(218, 165, 32, 0.35), inset 0 2px 0 rgba(255, 215, 0, 0.3), inset 0 -1px 0 rgba(139, 69, 19, 0.2)",
+                  borderRadius: 2,
+                  padding: { xs: 1.2, md: 1.5 },
+                  transition: "all 0.2s ease",
+                  border: "2px solid #8b4513",
+                  boxShadow: "0 4px 12px rgba(218, 165, 32, 0.25), inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+                  width: { xs: "44px", md: "48px" },
+                  height: { xs: "44px", md: "48px" },
                   "&:hover": { 
                     background: "linear-gradient(135deg, #8b4513 0%, #b8860b 30%, #daa520 70%, #ffd700 100%)",
-                    transform: "translateY(-3px) scale(1.05)",
+                    transform: "translateY(-2px) scale(1.03)",
                     borderColor: "#5d4e37",
-                    boxShadow: "0 12px 32px rgba(218, 165, 32, 0.45), inset 0 3px 0 rgba(255, 215, 0, 0.4), inset 0 -2px 0 rgba(139, 69, 19, 0.3)"
+                    boxShadow: "0 6px 16px rgba(218, 165, 32, 0.35), inset 0 2px 0 rgba(255, 215, 0, 0.3)"
                   }
                 }}
               >
-                <EditIcon sx={{ fontSize: "1.5rem" }} />
+                <EditIcon sx={{ fontSize: { xs: "1.2rem", md: "1.4rem" } }} />
               </IconButton>
               
               {/* Price Adjustments Button */}
               <IconButton 
                 onClick={() => setPriceAdjustmentsOpen(true)}
-                size="large"
+                size="medium"
                 sx={{ 
                   background: "linear-gradient(135deg, #059669 0%, #10b981 30%, #34d399 70%, #6ee7b7 100%)", 
                   color: "#ffffff",
-                  borderRadius: 4,
-                  padding: 2,
-                  transition: "all 0.3s ease",
-                  border: "3px solid #047857",
-                  boxShadow: "0 8px 24px rgba(5, 150, 105, 0.35), inset 0 2px 0 rgba(110, 231, 183, 0.3), inset 0 -1px 0 rgba(4, 120, 87, 0.2)",
+                  borderRadius: 2,
+                  padding: { xs: 1.2, md: 1.5 },
+                  transition: "all 0.2s ease",
+                  border: "2px solid #047857",
+                  boxShadow: "0 4px 12px rgba(5, 150, 105, 0.25), inset 0 1px 0 rgba(110, 231, 183, 0.2)",
+                  width: { xs: "44px", md: "48px" },
+                  height: { xs: "44px", md: "48px" },
                   "&:hover": { 
                     background: "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)",
-                    transform: "translateY(-3px) scale(1.05)",
+                    transform: "translateY(-2px) scale(1.03)",
                     borderColor: "#065f46",
-                    boxShadow: "0 12px 32px rgba(5, 150, 105, 0.45), inset 0 3px 0 rgba(110, 231, 183, 0.4), inset 0 -2px 0 rgba(4, 120, 87, 0.3)"
+                    boxShadow: "0 6px 16px rgba(5, 150, 105, 0.35), inset 0 2px 0 rgba(110, 231, 183, 0.3)"
                   }
                 }}
                 title="Price Adjustments"
               >
-                <TuneIcon sx={{ fontSize: "1.5rem" }} />
+                <TuneIcon sx={{ fontSize: { xs: "1.2rem", md: "1.4rem" } }} />
               </IconButton>
-              
-              {/* Price Adjustments Component */}
-              <PriceAdjustments
-                onAdjustmentsChange={handlePriceAdjustmentsChange}
-                baseRates={{ 
-                  gold: baseRate, 
-                  silver: 0.9, 
-                  platinum: 30 
-                }}
-                exchangeRate={baseExchangeRate}
-                isOpen={priceAdjustmentsOpen}
-                onOpenChange={setPriceAdjustmentsOpen}
-                currency={currency}
-                weightUnit={weightUnit}
-              />
             </Box>
+            
+            {/* Price Adjustments Component */}
+            <PriceAdjustments
+              onAdjustmentsChange={handlePriceAdjustmentsChange}
+              baseRates={{ 
+                gold: baseRate, 
+                silver: 0.9, 
+                platinum: 30 
+              }}
+              exchangeRate={baseExchangeRate}
+              isOpen={priceAdjustmentsOpen}
+              onOpenChange={setPriceAdjustmentsOpen}
+              currency={currency}
+              weightUnit={weightUnit}
+            />
           </Box>
         </Box>
 
@@ -813,7 +984,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                               : 'linear-gradient(135deg, #8b4513 0%, #b8860b 30%, #daa520 70%, #ffd700 100%)',
                             transform: weight > 0 ? 'scale(1.1)' : 'none',
                             boxShadow: weight > 0 
-                              ? '0 4px 12px rgba(184, 134, 11, 0.35), inset 0 2px 0 rgba(255, 235, 74, 0.4)'
+                              ? '0 4px 12px rgba(184, 134, 11, 0.35), inset 0 2px 0 rgba(255, 235, 74, 0.4), inset 0 -1px 0 rgba(139, 69, 19, 0.3)'
                               : 'none',
                           },
                           '&.Mui-disabled': {
@@ -1382,7 +1553,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
               Assayed Bar Calculator
             </Typography>
             <AssayedBar 
-              baseRate={baseRate}
+              baseRate={((parseFloat(baseRate) || 0) * ((parseFloat(percentageAdjustment) || 100) / 100))}
               onAssayedBarChange={handleAssayedBarChange}
               onAdd={handleAssayedBarAdd}
               disabled={isEditMode}
@@ -1772,6 +1943,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
     </Box>
   );
 };
+
 
 
 

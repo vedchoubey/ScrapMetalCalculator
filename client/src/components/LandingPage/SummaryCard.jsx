@@ -34,6 +34,12 @@ import { InvoicePdf } from "../invoice/InvoicePdf";
 import Receipt from ".././Receipt";
 import { ShortReceipt } from "../ShortReceipt";
 
+// Generate random enquiry number
+const generateEnquiryNumber = () => {
+  // Generate a 6-digit random number between 100000 and 999999
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 export const SummaryCard = ({ 
   sharedRows, 
   resetSharedRows, 
@@ -48,6 +54,7 @@ export const SummaryCard = ({
   const [tempBusinessConfig, setTempBusinessConfig] = useState(businessConfig);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewType, setPreviewType] = useState('short'); // 'short', 'full', 'invoice'
+  const [enquiryNumber] = useState(generateEnquiryNumber()); // Generate once and keep it
  
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
@@ -184,40 +191,47 @@ export const SummaryCard = ({
 
         <Divider sx={{ my: 2, borderColor: '#d97706', borderStyle: 'dashed' }} />
 
-        {/* Items */}
+        {/* Items Table - Match PDF Format Exactly */}
         <Box sx={{ mb: 3 }}>
           <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+            display: 'grid',
+            gridTemplateColumns: { xs: '0.7fr 1.5fr 0.8fr 0.8fr 0.6fr 0.9fr', sm: '1fr 2fr 1fr 1fr 1fr 1fr' },
+            gap: { xs: 0.5, sm: 1 },
             mb: 2,
             fontWeight: 'bold',
             color: '#451a03',
             borderBottom: '1px solid #d97706',
-            pb: 1
+            pb: 1,
+            fontSize: { xs: '0.7rem', sm: '0.8rem' }
           }}>
-            <Typography sx={{ fontWeight: 'bold' }}>Items</Typography>
-            <Typography sx={{ fontWeight: 'bold' }}>Weight ({getWeightUnitLabel()})</Typography>
-            {type === 'invoice' && <Typography sx={{ fontWeight: 'bold' }}>Subtotal ({getCurrencySymbol()})</Typography>}
+            <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>Enq #</Typography>
+            <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>Fineness</Typography>
+            <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>Weight</Typography>
+            <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>Price Per G</Typography>
+            <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>VAT</Typography>
+            <Typography sx={{ fontWeight: 'bold', textAlign: 'center' }}>Amount</Typography>
           </Box>
           
           {sharedRows.map((row, index) => (
             <Box key={index} sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+              display: 'grid',
+              gridTemplateColumns: { xs: '0.7fr 1.5fr 0.8fr 0.8fr 0.6fr 0.9fr', sm: '1fr 2fr 1fr 1fr 1fr 1fr' },
+              gap: { xs: 0.5, sm: 1 },
               mb: 1,
-              color: '#451a03'
+              color: '#451a03',
+              fontSize: { xs: '0.7rem', sm: '0.8rem' }
             }}>
-              <Typography sx={{ fontSize: '0.9rem' }}>
-                {row.description}
+              <Typography sx={{ textAlign: 'center' }}>{enquiryNumber}</Typography>
+              <Typography sx={{ textAlign: 'center', fontSize: { xs: '0.6rem', sm: '0.8rem' } }}>
+                {row.type === 'assayed' 
+                  ? `ASSAYED BAR ${row.purity}%` 
+                  : `GOLD ${row.Carat}`
+                }
               </Typography>
-              <Typography sx={{ fontSize: '0.9rem' }}>
-                {row.weight}{getWeightUnitLabel()}
-              </Typography>
-              {type === 'invoice' && (
-                <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#059669' }}>
-                  {getCurrencySymbol()}{row.subtotal?.toFixed(2) || '0.00'}
-                </Typography>
-              )}
+              <Typography sx={{ textAlign: 'center' }}>{row.weight.toFixed(2)}</Typography>
+              <Typography sx={{ textAlign: 'center' }}>{(row.pricePerUnit || row.pricePerGram)?.toFixed(2) || "0.00"}</Typography>
+              <Typography sx={{ textAlign: 'center' }}>0.00</Typography>
+              <Typography sx={{ textAlign: 'center' }}>{row.subtotal?.toFixed(2) || "0.00"}</Typography>
             </Box>
           ))}
         </Box>
@@ -495,15 +509,11 @@ export const SummaryCard = ({
                         <Typography display="flex" alignItems="center" sx={{ fontWeight: "600" }}>
                           {row.type === 'assayed' ? (
                             <>
-                              Assayed Bar{" "}
-                              <span style={{ marginLeft: "4px", fontSize: "12px", color: "#92400e" }}>
-                                ({row.purity.toFixed(2)}%)
-                              </span>
+                              ASSAYED BAR {row.purity.toFixed(1)}%
                             </>
                           ) : (
                             <>
-                              {row.Carat}{" "}
-                              <span style={{ marginLeft: "4px" }}>Carat</span>
+                              GOLD {row.Carat}
                             </>
                           )}
                         </Typography>
@@ -512,7 +522,7 @@ export const SummaryCard = ({
                         {row.quantity || "1"}
                       </TableCell>
                       <TableCell sx={{ borderBottom: "1px solid #f3e8d6", color: "#451a03", fontWeight: "600" }}>
-                        {row.weight}{getWeightUnitLabel()}
+                        {row.weight.toFixed(2)}{getWeightUnitLabel()}
                       </TableCell>
                       <TableCell sx={{ borderBottom: "1px solid #f3e8d6" }}>
                         <Typography sx={{ fontWeight: "700", color: "#059669" }}>
@@ -658,6 +668,7 @@ export const SummaryCard = ({
                         businessConfig={businessConfig}
                         currency={currency}
                         weightUnit={weightUnit}
+                        enquiryNumber={enquiryNumber}
                       />
                     }
                     fileName="shortReceipt.pdf"
@@ -688,6 +699,7 @@ export const SummaryCard = ({
                         businessConfig={businessConfig}
                         currency={currency}
                         weightUnit={weightUnit}
+                        enquiryNumber={enquiryNumber}
                       />
                     }
                     fileName="receipt.pdf"
@@ -719,6 +731,7 @@ export const SummaryCard = ({
                         businessConfig={businessConfig}
                         currency={currency}
                         weightUnit={weightUnit}
+                        enquiryNumber={enquiryNumber}
                       />
                     }
                     fileName="invoice.pdf"
@@ -834,6 +847,7 @@ export const SummaryCard = ({
                         businessConfig={businessConfig}
                         currency={currency}
                         weightUnit={weightUnit}
+                        enquiryNumber={enquiryNumber}
                       />
                     }
                     fileName="shortReceipt.pdf"
@@ -869,6 +883,7 @@ export const SummaryCard = ({
                         businessConfig={businessConfig}
                         currency={currency}
                         weightUnit={weightUnit}
+                        enquiryNumber={enquiryNumber}
                       />
                     }
                     fileName="receipt.pdf"
@@ -905,6 +920,7 @@ export const SummaryCard = ({
                         businessConfig={businessConfig}
                         currency={currency}
                         weightUnit={weightUnit}
+                        enquiryNumber={enquiryNumber}
                       />
                     }
                     fileName="invoice.pdf"

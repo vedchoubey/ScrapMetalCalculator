@@ -2,10 +2,19 @@ import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { styles } from "./style";
 
-export const InvoicePdf = ({ sharedRows, currency = "£", weightUnit = "g" }) => {
+// Generate random enquiry number
+const generateEnquiryNumber = () => {
+  // Generate a 6-digit random number between 100000 and 999999
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+export const InvoicePdf = ({ sharedRows, currency = "£", weightUnit = "g", enquiryNumber }) => {
   const invoiceNumber = `INV-${Math.floor(Math.random() * 1000000)}${
     Date.now() % 1000000
   }`.slice(0, 12);
+  
+  // Use provided enquiryNumber or generate one if not provided
+  const finalEnquiryNumber = enquiryNumber || generateEnquiryNumber();
 
   const todayDate = new Date().toLocaleDateString("en-GB");
 
@@ -73,29 +82,34 @@ export const InvoicePdf = ({ sharedRows, currency = "£", weightUnit = "g" }) =>
           </View>
         </View>
         
-        <View style={[styles.parent, { justifyContent: "flex-start", marginTop: 20, gap: 50 }]}>
-          <Text style={styles.boldText}>Customer No. ________________</Text>
-          <Text style={styles.boldText}>Customer VAT No. ________________</Text>
+        <View style={[styles.parent, { justifyContent: "flex-start", marginTop: 25, marginBottom: 15, gap: 40 }]}>
+          <Text style={styles.boldText}>Customer No. ________________________________</Text>
+          <Text style={styles.boldText}>Customer VAT No. ________________________________</Text>
         </View>
 
         <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={styles.tableHeaderCell}>Enq #</Text>
-            <Text style={styles.tableHeaderCell}>Fineness</Text>
-            <Text style={styles.tableHeaderCell}>Weight ({weightUnit})</Text>
-            <Text style={styles.tableHeaderCell}>Price Per {weightUnit} ({currency})</Text>
-            <Text style={styles.tableHeaderCell}>VAT</Text>
-            <Text style={styles.tableHeaderCell}>Amount ({currency})</Text>
+            <Text style={[styles.tableHeaderCell, { width: '12%' }]}>Enq #</Text>
+            <Text style={[styles.tableHeaderCell, { width: '25%' }]}>Fineness</Text>
+            <Text style={[styles.tableHeaderCell, { width: '15%' }]}>Weight</Text>
+            <Text style={[styles.tableHeaderCell, { width: '18%' }]}>Price Per G</Text>
+            <Text style={[styles.tableHeaderCell, { width: '12%' }]}>VAT</Text>
+            <Text style={[styles.tableHeaderCell, { width: '18%', borderRightWidth: 0 }]}>Amount</Text>
           </View>
 
           {sharedRows.map((row, index) => (
             <View key={index} style={styles.row}>
-              <Text style={styles.cell}>{index + 1}</Text>
-              <Text style={styles.cell}>{row.Carat} Carat Gold</Text>
-              <Text style={styles.cell}>{row.weight}{weightUnit}</Text>
-              <Text style={styles.cell}>{currency}{row.pricePerGram?.toFixed(3) || "0.000"}</Text>
-              <Text style={styles.cell}>{vatRate}%</Text>
-              <Text style={styles.cell}>{currency}{row.subtotal?.toFixed(2) || "0.00"}</Text>
+              <Text style={[styles.cell, { width: '12%' }]}>{finalEnquiryNumber}</Text>
+              <Text style={[styles.cell, { width: '25%', fontSize: 8 }]}>
+                {row.type === 'assayed' 
+                  ? `ASSAYED BAR ${row.purity}%` 
+                  : `GOLD ${row.Carat}`
+                }
+              </Text>
+              <Text style={[styles.cell, { width: '15%' }]}>{row.weight.toFixed(2)}</Text>
+              <Text style={[styles.cell, { width: '18%' }]}>{(row.pricePerUnit || row.pricePerGram)?.toFixed(2) || "0.00"}</Text>
+              <Text style={[styles.cell, { width: '12%' }]}>{vatRate.toFixed(2)}</Text>
+              <Text style={[styles.cell, { width: '18%', borderRightWidth: 0 }]}>{row.subtotal?.toFixed(2) || "0.00"}</Text>
             </View>
           ))}
         </View>

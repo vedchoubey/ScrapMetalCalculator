@@ -108,14 +108,14 @@ export const AssayedBar = ({
     }
   }, [purity, weight, pricePerGram, subtotal]); // Removed onAssayedBarChange from dependencies
 
-  // Mobile card layout for extra small screens
+  // For mobile screens, use a more compact table layout
   if (isXs) {
     return (
-      <Card sx={{ 
+      <Box sx={{ 
+        overflowX: "auto",
         background: "linear-gradient(135deg, #ffffff 0%, #fefefe 30%, #fdfdfc 70%, #fbfbfa 100%)",
-        border: '2px solid #e5ddd5',
         borderRadius: 4,
-        overflow: 'hidden',
+        border: "2px solid #e5ddd5",
         boxShadow: "0 8px 24px rgba(139, 115, 85, 0.1), 0 4px 8px rgba(139, 115, 85, 0.06)",
         transition: "all 0.3s ease-in-out",
         "&:hover": {
@@ -123,215 +123,239 @@ export const AssayedBar = ({
           borderColor: "#d4c4b0"
         }
       }}>
-        <CardContent sx={{ padding: '20px !important' }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontSize: { xs: "1.1rem", sm: "1.2rem" }, 
-              fontWeight: '700',
-              marginBottom: 3,
-              color: '#451a03',
-              textAlign: 'center',
-              letterSpacing: "0.5px",
-              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-            }}
-          >
-            Assayed Bar
-          </Typography>
-          
-          <Grid container spacing={2.5}>
-            <Grid item xs={6}>
-              <Typography variant="body2" sx={{ 
-                color: '#92400e', 
-                marginBottom: 1.5, 
-                fontWeight: 600,
-                fontSize: "0.85rem",
+        <Table sx={{ minWidth: 320 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ 
+                borderBottom: "3px solid #b8860b", 
+                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+                fontWeight: "800",
+                color: "#451a03",
+                fontSize: "0.7rem",
                 textTransform: "uppercase",
-                letterSpacing: "0.5px"
+                letterSpacing: "0.3px",
+                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+                width: 80,
+                py: 1.5,
+                px: 1
               }}>
-                Purity (%)
-              </Typography>
-              <OutlinedInput
-                value={purity}
-                onChange={handlePurityChange}
-                placeholder="0.00"
-                disabled={disabled}
-                fullWidth
-                endAdornment={
-                  <InputAdornment position="end">
-                    <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.875rem" }}>%</Typography>
-                  </InputAdornment>
-                }
-                sx={{
-                  height: "48px",
-                  fontSize: "1rem",
-                  fontWeight: "700",
-                  borderRadius: 3,
-                  background: "#fefcf3",
-                  '& .MuiInputBase-input': {
-                    textAlign: 'center',
-                    color: "#451a03",
-                    // Hide number input spinner arrows
-                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                      WebkitAppearance: 'none',
-                      margin: 0
-                    },
-                    '&[type=number]': {
-                      MozAppearance: 'textfield' // Firefox
-                    }
-                  },
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#d97706",
-                    borderWidth: "2px"
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#92400e"
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#451a03",
-                    borderWidth: "2px"
+                Type
+              </TableCell>
+              <TableCell sx={{ 
+                borderBottom: "3px solid #b8860b", 
+                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+                fontWeight: "800",
+                color: "#451a03",
+                fontSize: "0.7rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.3px",
+                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+                width: 70,
+                py: 1.5,
+                px: 1
+              }}>
+                Purity
+              </TableCell>
+              <TableCell sx={{ 
+                borderBottom: "3px solid #b8860b", 
+                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+                fontWeight: "800",
+                color: "#451a03",
+                fontSize: "0.7rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.3px",
+                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+                width: 80,
+                py: 1.5,
+                px: 1
+              }}>
+                Weight
+              </TableCell>
+              <TableCell sx={{ 
+                borderBottom: "3px solid #b8860b", 
+                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+                fontWeight: "800",
+                color: "#451a03",
+                fontSize: "0.7rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.3px",
+                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+                width: 60,
+                py: 1.5,
+                px: 1
+              }}>
+                Value
+              </TableCell>
+              <TableCell sx={{ 
+                borderBottom: "3px solid #b8860b", 
+                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+                fontWeight: "800",
+                color: "#451a03",
+                fontSize: "0.7rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.3px",
+                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+                width: 50,
+                py: 1.5,
+                px: 1,
+                textAlign: 'center'
+              }}>
+                Add
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow sx={{
+              bgcolor: "#fef7ed",
+              "&:hover": {
+                bgcolor: "#f3e8d6",
+                transition: "background-color 0.2s ease"
+              }
+            }}>
+              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
+                <Typography sx={{ 
+                  fontSize: "0.75rem", 
+                  fontWeight: '700',
+                  color: '#451a03',
+                  lineHeight: 1.2
+                }}>
+                  Assayed
+                </Typography>
+                <Typography sx={{ 
+                  fontSize: "0.65rem", 
+                  color: "#92400e",
+                  fontStyle: "italic",
+                  fontWeight: "500",
+                  lineHeight: 1
+                }}>
+                  Bar
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
+                <OutlinedInput
+                  value={purity}
+                  onChange={handlePurityChange}
+                  placeholder="0"
+                  disabled={disabled}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.7rem" }}>%</Typography>
+                    </InputAdornment>
                   }
-                }}
-              />
-            </Grid>
-            
-            <Grid item xs={6}>
-              <Typography variant="body2" sx={{ 
-                color: '#92400e', 
-                marginBottom: 1.5, 
-                fontWeight: 600,
-                fontSize: "0.85rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                Weight ({getWeightUnitLabel()})
-              </Typography>
-              <OutlinedInput
-                value={weight}
-                onChange={handleWeightChange}
-                placeholder="0.000"
-                disabled={disabled}
-                fullWidth
-                endAdornment={
-                  <InputAdornment position="end">
-                    <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.875rem" }}>{getWeightUnitLabel()}</Typography>
-                  </InputAdornment>
-                }
-                sx={{
-                  height: "48px",
-                  fontSize: "1rem",
-                  fontWeight: "700",
-                  borderRadius: 3,
-                  background: "#fefcf3",
-                  '& .MuiInputBase-input': {
-                    textAlign: 'center',
-                    color: "#451a03",
-                    // Hide number input spinner arrows
-                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                      WebkitAppearance: 'none',
-                      margin: 0
-                    },
-                    '&[type=number]': {
-                      MozAppearance: 'textfield' // Firefox
-                    }
-                  },
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#d97706",
-                    borderWidth: "2px"
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#92400e"
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#451a03",
-                    borderWidth: "2px"
-                  }
-                }}
-              />
-            </Grid>
-            
-            <Grid item xs={6}>
-              <Typography variant="body2" sx={{ 
-                color: '#92400e', 
-                marginBottom: 1.5, 
-                fontWeight: 600,
-                fontSize: "0.85rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                Price/{getWeightUnitLabel()}
-              </Typography>
-              <Box 
-                sx={{
-                  display: "flex", 
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)",
-                  color: "#1a0f00",
-                  px: 2,
-                  py: 1.5,
-                  borderRadius: 3,
-                  border: "2px solid #8b4513",
-                  boxShadow: "0 3px 8px rgba(218, 165, 32, 0.3), inset 0 1px 0 rgba(255, 235, 74, 0.4)",
-                  minHeight: "48px"
-                }}
-              >
-                <Typography 
-                  sx={{ 
-                    fontSize: "1rem", 
+                  sx={{
+                    width: "60px",
+                    height: "36px",
+                    fontSize: "0.75rem",
                     fontWeight: "700",
-                    textAlign: 'center'
+                    borderRadius: 2,
+                    background: "#fefcf3",
+                    '& .MuiInputBase-input': {
+                      textAlign: 'center',
+                      color: "#451a03",
+                      padding: "6px 8px",
+                      '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                        WebkitAppearance: 'none',
+                        margin: 0
+                      },
+                      '&[type=number]': {
+                        MozAppearance: 'textfield'
+                      }
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#d97706",
+                      borderWidth: "1px"
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#92400e"
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#451a03",
+                      borderWidth: "2px"
+                    }
+                  }}
+                />
+              </TableCell>
+              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
+                <OutlinedInput
+                  value={weight}
+                  onChange={handleWeightChange}
+                  placeholder="0"
+                  disabled={disabled}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.7rem" }}>{getWeightUnitLabel()}</Typography>
+                    </InputAdornment>
+                  }
+                  sx={{
+                    width: "70px",
+                    height: "36px",
+                    fontSize: "0.75rem",
+                    fontWeight: "700",
+                    borderRadius: 2,
+                    background: "#fefcf3",
+                    '& .MuiInputBase-input': {
+                      textAlign: 'center',
+                      color: "#451a03",
+                      padding: "6px 8px",
+                      '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                        WebkitAppearance: 'none',
+                        margin: 0
+                      },
+                      '&[type=number]': {
+                        MozAppearance: 'textfield'
+                      }
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#d97706",
+                      borderWidth: "1px"
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#92400e"
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#451a03",
+                      borderWidth: "2px"
+                    }
+                  }}
+                />
+              </TableCell>
+              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
+                <Box 
+                  sx={{
+                    display: "flex", 
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: subtotal > 0 
+                      ? "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)"
+                      : "linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)",
+                    color: "white",
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 2,
+                    width: "fit-content",
+                    border: subtotal > 0 ? "1px solid #065f46" : "1px solid #6b7280",
+                    boxShadow: subtotal > 0 
+                      ? "0 2px 4px rgba(5, 150, 105, 0.3)" 
+                      : "0 1px 2px rgba(107, 114, 128, 0.2)",
+                    minWidth: "45px",
+                    minHeight: "24px"
                   }}
                 >
-                  {getCurrencySymbol()}{pricePerGram.toFixed(3)}
-                </Typography>
-              </Box>
-            </Grid>
-            
-            <Grid item xs={6}>
-              <Typography variant="body2" sx={{ 
-                color: '#92400e', 
-                marginBottom: 1.5, 
-                fontWeight: 600,
-                fontSize: "0.85rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px"
-              }}>
-                Subtotal
-              </Typography>
-              <Box 
-                sx={{
-                  display: "flex", 
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: subtotal > 0 
-                    ? "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)"
-                    : "linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)",
-                  color: "white",
-                  px: 2,
-                  py: 1.5,
-                  borderRadius: 3,
-                  border: subtotal > 0 ? "2px solid #065f46" : "2px solid #6b7280",
-                  boxShadow: subtotal > 0 
-                    ? "0 3px 8px rgba(5, 150, 105, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.3)" 
-                    : "0 2px 4px rgba(107, 114, 128, 0.2)",
-                  minHeight: "48px"
-                }}
-              >
-                <Typography 
-                  sx={{ 
-                    fontSize: "1rem", 
+                  <Typography sx={{ 
+                    fontSize: "0.7rem", 
                     fontWeight: "700",
-                    textAlign: 'center'
-                  }}
-                >
-                  {getCurrencySymbol()}{subtotal.toFixed(2)}
-                </Typography>
-              </Box>
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                    lineHeight: 1
+                  }}>
+                    {getCurrencySymbol()}{subtotal.toFixed(0)}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1, textAlign: 'center' }}>
                 <IconButton
                   onClick={handleAdd}
                   disabled={disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0}
@@ -340,34 +364,34 @@ export const AssayedBar = ({
                       ? "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)"
                       : "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)",
                     color: "white",
-                    width: { xs: "48px", sm: "52px" },
-                    height: { xs: "48px", sm: "52px" },
+                    width: "32px",
+                    height: "32px",
                     borderRadius: "50%",
                     border: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                      ? "2px solid #6b7280"
-                      : "2px solid #065f46",
+                      ? "1px solid #6b7280"
+                      : "1px solid #065f46",
                     boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                      ? "0 2px 4px rgba(107, 114, 128, 0.2)"
-                      : "0 6px 20px rgba(5, 150, 105, 0.4), 0 2px 4px rgba(5, 150, 105, 0.3)",
-                    transition: "all 0.3s ease",
+                      ? "0 1px 2px rgba(107, 114, 128, 0.2)"
+                      : "0 3px 8px rgba(5, 150, 105, 0.4)",
+                    transition: "all 0.2s ease",
                     "&:hover": {
                       transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(1.05)",
                       boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                        ? "0 2px 4px rgba(107, 114, 128, 0.2)"
-                        : "0 8px 25px rgba(5, 150, 105, 0.5), 0 4px 8px rgba(5, 150, 105, 0.4)"
+                        ? "0 1px 2px rgba(107, 114, 128, 0.2)"
+                        : "0 4px 12px rgba(5, 150, 105, 0.5)"
                     },
                     "&:active": {
-                      transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(0.98)"
+                      transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(0.95)"
                     }
                   }}
                 >
-                  <ArrowRightAltIcon sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem" } }} />
+                  <ArrowRightAltIcon sx={{ fontSize: "1rem" }} />
                 </IconButton>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
     );
   }
 
