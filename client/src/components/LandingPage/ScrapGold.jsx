@@ -280,6 +280,24 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
     setAssayedBarData(data);
   }, []);
 
+  const handleAssayedBarAdd = useCallback((data) => {
+    if (data && data.purity > 0 && data.weight > 0) {
+      const sharedRow = {
+        id: Date.now() + Math.random(), // Unique ID for each entry
+        Carat: 'Assayed Bar',
+        description: `Assayed Bar (${data.purity}% purity)`,
+        purity: data.purity,
+        weight: data.weight,
+        pricePerUnit: data.pricePerGram,
+        subtotal: data.subtotal,
+        quantity: 1,
+        type: 'assayed'
+      };
+      
+      setSharedRows(prev => [...prev, sharedRow]);
+    }
+  }, [setSharedRows]);
+
   const handlePriceAdjustmentsChange = useCallback((adjustments) => {
     setPriceAdjustments(adjustments);
     // Update adjusted exchange rate
@@ -332,17 +350,31 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
       
       const sharedRow = {
         ...goldItem,
+        id: Date.now() + Math.random(), // Unique ID for each entry
         weight: weight,
         pricePerUnit: pricePerUnit,
-        subtotal: subtotal
+        subtotal: subtotal,
+        quantity: 1 // Add quantity field
       };
       
       setSharedRows(prev => [...prev, sharedRow]);
+      
+      // Clear the weight field after adding to summary
+      setWeights(prev => ({
+        ...prev,
+        [goldItem.Carat]: 0
+      }));
     }
   };
 
   const handleUnshareRow = (Carat) => {
+    // Remove all entries with this Carat value (for main table toggle)
     setSharedRows(prev => prev.filter(row => row.Carat !== Carat));
+  };
+
+  const handleRemoveRow = (id) => {
+    // Remove specific entry by ID (for summary table remove buttons)
+    setSharedRows(prev => prev.filter(row => row.id !== id));
   };
 
   const resetSharedRows = () => {
@@ -591,7 +623,15 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                 "& .MuiOutlinedInput-input": {
                   color: "#1a0f00",
                   fontWeight: "900",
-                  fontSize: { xs: "1rem", md: "1.2rem" }
+                  fontSize: { xs: "1rem", md: "1.2rem" },
+                  // Hide number input spinner arrows
+                  '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                    WebkitAppearance: 'none',
+                    margin: 0
+                  },
+                  '&[type=number]': {
+                    MozAppearance: 'textfield' // Firefox
+                  }
                 }
               }}
             />
@@ -712,19 +752,19 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                 const pricePerUnit = calculatePricePerUnit(row.Carat);
                 const weight = weights[row.Carat] || 0;
                 const subtotal = calculateSubtotal(pricePerUnit, weight);
-                const isShared = sharedRows.some(sharedRow => sharedRow.Carat === row.Carat);
+                const hasSharedItems = sharedRows.some(sharedRow => sharedRow.Carat === row.Carat);
                 return (
                   <Paper key={row.Carat}
-                    elevation={isShared ? 4 : 2}
+                    elevation={hasSharedItems ? 4 : 2}
                     sx={{
                       borderRadius: 3,
                       p: 2.5,
-                      border: isShared ? '3px solid #d97706' : '1px solid #e5ddd5',
-                      bgcolor: isShared ? '#f3e8d6' : '#ffffff',
-                      background: isShared 
+                      border: hasSharedItems ? '3px solid #d97706' : '1px solid #e5ddd5',
+                      bgcolor: hasSharedItems ? '#f3e8d6' : '#ffffff',
+                      background: hasSharedItems 
                         ? 'linear-gradient(135deg, #f3e8d6 0%, #e7dcc3 100%)' 
                         : 'linear-gradient(135deg, #ffffff 0%, #fefefe 30%, #fdfdfc 70%, #fbfbfa 100%)',
-                      boxShadow: isShared 
+                      boxShadow: hasSharedItems 
                         ? '0 6px 20px rgba(217, 119, 6, 0.25), 0 2px 6px rgba(217, 119, 6, 0.15)' 
                         : '0 4px 12px rgba(139, 115, 85, 0.08), 0 2px 4px rgba(139, 115, 85, 0.06)',
                       display: 'flex', 
@@ -734,10 +774,10 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                       transition: 'all 0.3s ease-in-out',
                       "&:hover": {
                         transform: "translateY(-2px)",
-                        boxShadow: isShared 
+                        boxShadow: hasSharedItems 
                           ? '0 8px 25px rgba(217, 119, 6, 0.3), 0 3px 8px rgba(217, 119, 6, 0.2)' 
                           : '0 6px 16px rgba(139, 115, 85, 0.12), 0 3px 6px rgba(139, 115, 85, 0.08)',
-                        borderColor: isShared ? '#92400e' : '#d4c4b0'
+                        borderColor: hasSharedItems ? '#92400e' : '#d4c4b0'
                       }
                     }}
                   >
@@ -747,53 +787,43 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                         <Typography variant="caption" sx={{ color: '#92400e', fontSize: '0.8rem', fontStyle: 'italic', fontWeight: 500 }}>{row.percentage?.toFixed(2)}% Purity</Typography>
                       </Box>
                       <IconButton
-                        onClick={() => weight > 0 && (isShared ? handleUnshareRow(row.Carat) : handleShareRow(index))}
+                        onClick={() => weight > 0 && handleShareRow(index)}
                         disabled={weight <= 0}
                         size="small"
                         sx={{
                           bgcolor: weight <= 0 
                             ? 'linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)' 
-                            : isShared 
-                              ? 'linear-gradient(135deg, #451a03 0%, #5d2506 50%, #d97706 100%)' 
-                              : 'linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)',
-                          color: weight <= 0 ? '#9ca3af' : isShared ? '#ffffff' : '#1a0f00',
+                            : 'linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)',
+                          color: weight <= 0 ? '#9ca3af' : '#1a0f00',
                           borderRadius: 2,
                           border: weight <= 0 
                             ? '2px solid #d1d5db' 
-                            : isShared 
-                              ? '2px solid #451a03' 
-                              : '2px solid #8b4513',
+                            : '2px solid #8b4513',
                           ml: 1,
                           transition: 'all 0.3s ease',
                           minWidth: '42px',
                           minHeight: '42px',
                           cursor: weight <= 0 ? 'not-allowed' : 'pointer',
                           boxShadow: weight > 0 
-                            ? isShared 
-                              ? '0 3px 8px rgba(69, 26, 3, 0.25), inset 0 1px 0 rgba(217, 119, 6, 0.3)' 
-                              : '0 3px 8px rgba(184, 134, 11, 0.25), inset 0 1px 0 rgba(255, 235, 74, 0.3)'
+                            ? '0 3px 8px rgba(184, 134, 11, 0.25), inset 0 1px 0 rgba(255, 235, 74, 0.3)'
                             : 'none',
                           '&:hover': {
                             bgcolor: weight <= 0 
                               ? 'linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)'
-                              : isShared 
-                                ? 'linear-gradient(135deg, #5d2506 0%, #451a03 30%, #5d2506 70%, #d97706 100%)' 
-                                : 'linear-gradient(135deg, #8b4513 0%, #b8860b 30%, #daa520 70%, #ffd700 100%)',
+                              : 'linear-gradient(135deg, #8b4513 0%, #b8860b 30%, #daa520 70%, #ffd700 100%)',
                             transform: weight > 0 ? 'scale(1.1)' : 'none',
                             boxShadow: weight > 0 
-                              ? isShared 
-                                ? '0 4px 12px rgba(69, 26, 3, 0.35), inset 0 2px 0 rgba(217, 119, 6, 0.4)' 
-                                : '0 4px 12px rgba(184, 134, 11, 0.35), inset 0 2px 0 rgba(255, 235, 74, 0.4)'
+                              ? '0 4px 12px rgba(184, 134, 11, 0.35), inset 0 2px 0 rgba(255, 235, 74, 0.4)'
                               : 'none',
                           },
                           '&.Mui-disabled': {
                             opacity: 0.6
                           }
                         }}
-                        aria-label={weight <= 0 ? 'Add weight to enable' : isShared ? 'Unshare' : 'Share'}
-                        title={weight <= 0 ? 'Add weight to enable' : isShared ? 'Remove from summary' : 'Add to summary'}
+                        aria-label={weight <= 0 ? 'Add weight to enable' : 'Add to summary'}
+                        title={weight <= 0 ? 'Add weight to enable' : hasSharedItems ? 'Add another entry to summary' : 'Add to summary'}
                       >
-                        {isShared ? <ArrowBackIcon sx={{ fontSize: '1.2rem' }} /> : <ArrowRightAltIcon sx={{ fontSize: '1.2rem' }} />}
+                        <ArrowRightAltIcon sx={{ fontSize: '1.2rem' }} />
                       </IconButton>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -815,7 +845,18 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                             '&:hover fieldset': { borderColor: weights[row.Carat] <= 0 ? '#dc2626' : '#92400e' },
                             '&.Mui-focused fieldset': { borderColor: weights[row.Carat] <= 0 ? '#dc2626' : '#451a03', borderWidth: '2px' },
                           },
-                          '& .MuiInputBase-input': { color: '#451a03', fontWeight: 600 },
+                          '& .MuiInputBase-input': { 
+                            color: '#451a03', 
+                            fontWeight: 600,
+                            // Hide number input spinner arrows
+                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                              WebkitAppearance: 'none',
+                              margin: 0
+                            },
+                            '&[type=number]': {
+                              MozAppearance: 'textfield' // Firefox
+                            }
+                          },
                         }}
                         InputProps={{
                           endAdornment: (
@@ -1092,7 +1133,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                     const pricePerUnit = calculatePricePerUnit(row.Carat);
                     const weight = weights[row.Carat] || 0;
                     const subtotal = calculateSubtotal(pricePerUnit, weight);
-                    const isShared = sharedRows.some(sharedRow => sharedRow.Carat === row.Carat);
+                    const hasSharedItems = sharedRows.some(sharedRow => sharedRow.Carat === row.Carat);
 
                     return (
                       <Fade in={true} timeout={300 + index * 100} key={index}>
@@ -1105,11 +1146,11 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                               bgcolor: "#ffffff"
                             },
                             "&:hover": {
-                              bgcolor: sharedRows.some(sharedRow => sharedRow.Carat === row.Carat) ? "#e7dcc3" : "#f3e8d6", // Subtle warm hover
+                              bgcolor: hasSharedItems ? "#e7dcc3" : "#f3e8d6", // Subtle warm hover
                               transition: "background-color 0.2s ease",
                               boxShadow: "0 1px 4px rgba(139, 115, 85, 0.1)"
                             },
-                            ...(sharedRows.some(sharedRow => sharedRow.Carat === row.Carat) && {
+                            ...(hasSharedItems && {
                               bgcolor: "#f3e8d6", // Warm beige for shared rows
                               "&:hover": {
                                 bgcolor: "#e7dcc3"
@@ -1180,7 +1221,15 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                                 },
                                 "& .MuiInputBase-input": {
                                   color: "#451a03",
-                                  fontWeight: "600"
+                                  fontWeight: "600",
+                                  // Hide number input spinner arrows
+                                  '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                                    WebkitAppearance: 'none',
+                                    margin: 0
+                                  },
+                                  '&[type=number]': {
+                                    MozAppearance: 'textfield' // Firefox
+                                  }
                                 }
                               }}
                               InputProps={{
@@ -1253,63 +1302,40 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                           <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: { xs: 1, md: 2 }, textAlign: "center" }}>
                             <Zoom in={true} timeout={400 + index * 100}>
                               <span>
-                                {!isShared ? (
-                                  <IconButton
-                                    onClick={() => weight > 0 && handleShareRow(index)}
-                                    disabled={weight <= 0}
-                                    size={isXs ? "small" : "medium"}
-                                    sx={{
+                                <IconButton
+                                  onClick={() => weight > 0 && handleShareRow(index)}
+                                  disabled={weight <= 0}
+                                  size={isXs ? "small" : "medium"}
+                                  sx={{
+                                    bgcolor: weight <= 0 
+                                      ? "linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)"
+                                      : "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)",
+                                    color: weight <= 0 ? "#9ca3af" : "#1a0f00",
+                                    borderRadius: 2,
+                                    transition: "all 0.3s ease",
+                                    border: weight <= 0 
+                                      ? "2px solid #d1d5db" 
+                                      : "2px solid #8b4513",
+                                    minWidth: { xs: "36px", md: "40px" },
+                                    minHeight: { xs: "36px", md: "40px" },
+                                    cursor: weight <= 0 ? "not-allowed" : "pointer",
+                                    boxShadow: weight > 0 ? "0 2px 6px rgba(184, 134, 11, 0.2), inset 0 1px 0 rgba(255, 235, 74, 0.3)" : "none",
+                                    "&:hover": {
                                       bgcolor: weight <= 0 
                                         ? "linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)"
-                                        : "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)",
-                                      color: weight <= 0 ? "#9ca3af" : "#1a0f00",
-                                      borderRadius: 2,
-                                      transition: "all 0.3s ease",
-                                      border: weight <= 0 
-                                        ? "2px solid #d1d5db" 
-                                        : "2px solid #8b4513",
-                                      minWidth: { xs: "36px", md: "40px" },
-                                      minHeight: { xs: "36px", md: "40px" },
-                                      cursor: weight <= 0 ? "not-allowed" : "pointer",
-                                      boxShadow: weight > 0 ? "0 2px 6px rgba(184, 134, 11, 0.2), inset 0 1px 0 rgba(255, 235, 74, 0.3)" : "none",
-                                      "&:hover": {
-                                        bgcolor: weight <= 0 
-                                          ? "linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)"
-                                          : "linear-gradient(135deg, #8b4513 0%, #b8860b 30%, #daa520 70%, #ffd700 100%)",
-                                        transform: weight > 0 ? "scale(1.1)" : "none",
-                                        boxShadow: weight > 0 ? "0 4px 12px rgba(184, 134, 11, 0.4), inset 0 2px 0 rgba(255, 235, 74, 0.4)" : "none"
-                                      },
-                                      "&.Mui-disabled": {
-                                        opacity: 0.6
-                                      }
-                                    }}
-                                    aria-label={weight <= 0 ? "Add weight to enable" : "Share"}
-                                    title={weight <= 0 ? "Add weight to enable" : "Add to summary"}
-                                  >
-                                    <ArrowRightAltIcon sx={{ fontSize: { xs: "1rem", md: "1.2rem" } }} />
-                                  </IconButton>
-                                ) : (
-                                  <IconButton
-                                    onClick={() => handleUnshareRow(row.Carat)}
-                                    size={isXs ? "small" : "medium"}
-                                    sx={{
-                                      background: "linear-gradient(135deg, #451a03 0%, #5d2506 50%, #d97706 100%)",
-                                      color: "white",
-                                      borderRadius: 2,
-                                      border: "2px solid #451a03",
-                                      transition: "all 0.3s ease",
-                                      boxShadow: "0 2px 6px rgba(69, 26, 3, 0.2), inset 0 1px 0 rgba(217, 119, 6, 0.3)",
-                                      "&:hover": {
-                                        background: "linear-gradient(135deg, #5d2506 0%, #451a03 30%, #5d2506 70%, #d97706 100%)",
-                                        transform: "scale(1.1)",
-                                        boxShadow: "0 4px 12px rgba(69, 26, 3, 0.4), inset 0 2px 0 rgba(217, 119, 6, 0.4)"
-                                      }
-                                    }}
-                                    title="Remove from summary"
-                                  >
-                                    <ArrowBackIcon sx={{ fontSize: { xs: "1rem", md: "1.2rem" } }} />
-                                  </IconButton>
-                                )}
+                                        : "linear-gradient(135deg, #8b4513 0%, #b8860b 30%, #daa520 70%, #ffd700 100%)",
+                                      transform: weight > 0 ? "scale(1.1)" : "none",
+                                      boxShadow: weight > 0 ? "0 4px 12px rgba(184, 134, 11, 0.4), inset 0 2px 0 rgba(255, 235, 74, 0.4)" : "none"
+                                    },
+                                    "&.Mui-disabled": {
+                                      opacity: 0.6
+                                    }
+                                  }}
+                                  aria-label={weight <= 0 ? "Add weight to enable" : "Add to summary"}
+                                  title={weight <= 0 ? "Add weight to enable" : hasSharedItems ? "Add another entry to summary" : "Add to summary"}
+                                >
+                                  <ArrowRightAltIcon sx={{ fontSize: { xs: "1rem", md: "1.2rem" } }} />
+                                </IconButton>
                               </span>
                             </Zoom>
                           </TableCell>
@@ -1358,6 +1384,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
             <AssayedBar 
               baseRate={baseRate}
               onAssayedBarChange={handleAssayedBarChange}
+              onAdd={handleAssayedBarAdd}
               disabled={isEditMode}
               currency={currency}
               weightUnit={weightUnit}
@@ -1379,7 +1406,7 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
         <SummaryCard
           sharedRows={sharedRows}
           resetSharedRows={resetSharedRows}
-          assayedBarData={assayedBarData}
+          handleRemoveRow={handleRemoveRow}
           businessConfig={businessConfig}
           setBusinessConfig={setBusinessConfig}
           currency={currency}
@@ -1599,7 +1626,15 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                           },
                           "& .MuiInputBase-input": {
                             color: "#451a03",
-                            fontWeight: "600"
+                            fontWeight: "600",
+                            // Hide number input spinner arrows
+                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                              WebkitAppearance: 'none',
+                              margin: 0
+                            },
+                            '&[type=number]': {
+                              MozAppearance: 'textfield' // Firefox
+                            }
                           }
                         }}
                         InputProps={{

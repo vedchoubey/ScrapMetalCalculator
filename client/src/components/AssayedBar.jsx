@@ -13,12 +13,15 @@ import {
   CardContent,
   Grid,
   InputAdornment,
+  IconButton,
 } from "@mui/material";
 import React, { useState, useEffect, useCallback } from "react";
+import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 
 export const AssayedBar = ({ 
   baseRate,
   onAssayedBarChange,
+  onAdd, // New prop for add functionality
   initialPurity = "",
   initialWeight = "",
   disabled = false,
@@ -75,6 +78,23 @@ export const AssayedBar = ({
   const subtotal = weight && !isNaN(parseFloat(weight)) && pricePerGram > 0
     ? parseFloat(weight) * pricePerGram 
     : 0;
+
+  // Handle add functionality
+  const handleAdd = () => {
+    if (onAdd && purity && weight && parseFloat(purity) > 0 && parseFloat(weight) > 0) {
+      onAdd({
+        purity: parseFloat(purity),
+        weight: parseFloat(weight),
+        pricePerGram,
+        subtotal,
+        type: 'Assayed Bar'
+      });
+      
+      // Reset inputs after adding
+      setPurity("");
+      setWeight("");
+    }
+  };
 
   // Notify parent component of changes
   useEffect(() => {
@@ -150,7 +170,15 @@ export const AssayedBar = ({
                   background: "#fefcf3",
                   '& .MuiInputBase-input': {
                     textAlign: 'center',
-                    color: "#451a03"
+                    color: "#451a03",
+                    // Hide number input spinner arrows
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    },
+                    '&[type=number]': {
+                      MozAppearance: 'textfield' // Firefox
+                    }
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#d97706",
@@ -197,7 +225,15 @@ export const AssayedBar = ({
                   background: "#fefcf3",
                   '& .MuiInputBase-input': {
                     textAlign: 'center',
-                    color: "#451a03"
+                    color: "#451a03",
+                    // Hide number input spinner arrows
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    },
+                    '&[type=number]': {
+                      MozAppearance: 'textfield' // Firefox
+                    }
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#d97706",
@@ -291,6 +327,42 @@ export const AssayedBar = ({
                 >
                   {getCurrencySymbol()}{subtotal.toFixed(2)}
                 </Typography>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                <IconButton
+                  onClick={handleAdd}
+                  disabled={disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0}
+                  sx={{
+                    background: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                      ? "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)"
+                      : "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)",
+                    color: "white",
+                    width: { xs: "48px", sm: "52px" },
+                    height: { xs: "48px", sm: "52px" },
+                    borderRadius: "50%",
+                    border: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                      ? "2px solid #6b7280"
+                      : "2px solid #065f46",
+                    boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                      ? "0 2px 4px rgba(107, 114, 128, 0.2)"
+                      : "0 6px 20px rgba(5, 150, 105, 0.4), 0 2px 4px rgba(5, 150, 105, 0.3)",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(1.05)",
+                      boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                        ? "0 2px 4px rgba(107, 114, 128, 0.2)"
+                        : "0 8px 25px rgba(5, 150, 105, 0.5), 0 4px 8px rgba(5, 150, 105, 0.4)"
+                    },
+                    "&:active": {
+                      transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(0.98)"
+                    }
+                  }}
+                >
+                  <ArrowRightAltIcon sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem" } }} />
+                </IconButton>
               </Box>
             </Grid>
           </Grid>
@@ -391,6 +463,22 @@ export const AssayedBar = ({
             }}>
               Value ({getCurrencySymbol()})
             </TableCell>
+            <TableCell sx={{ 
+              borderBottom: "3px solid #b8860b", 
+              bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
+              fontWeight: "800",
+              color: "#451a03",
+              fontSize: { xs: "0.8rem", md: "0.875rem" },
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
+              width: isMobile ? 60 : 80,
+              py: 2,
+              textAlign: 'center'
+            }}>
+              Action
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -442,7 +530,15 @@ export const AssayedBar = ({
                   background: "#fefcf3",
                   '& .MuiInputBase-input': {
                     textAlign: 'center',
-                    color: "#451a03"
+                    color: "#451a03",
+                    // Hide number input spinner arrows
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    },
+                    '&[type=number]': {
+                      MozAppearance: 'textfield' // Firefox
+                    }
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#d97706",
@@ -478,7 +574,15 @@ export const AssayedBar = ({
                   background: "#fefcf3",
                   '& .MuiInputBase-input': {
                     textAlign: 'center',
-                    color: "#451a03"
+                    color: "#451a03",
+                    // Hide number input spinner arrows
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    },
+                    '&[type=number]': {
+                      MozAppearance: 'textfield' // Firefox
+                    }
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#d97706",
@@ -543,6 +647,39 @@ export const AssayedBar = ({
                   {getCurrencySymbol()}{subtotal.toFixed(2)}
                 </Typography>
               </Box>
+            </TableCell>
+            <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 2, textAlign: 'center' }}>
+              <IconButton
+                onClick={handleAdd}
+                disabled={disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0}
+                sx={{
+                  background: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                    ? "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)"
+                    : "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)",
+                  color: "white",
+                  width: { xs: "40px", md: "44px" },
+                  height: { xs: "40px", md: "44px" },
+                  borderRadius: "50%",
+                  border: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                    ? "2px solid #6b7280"
+                    : "2px solid #065f46",
+                  boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                    ? "0 2px 4px rgba(107, 114, 128, 0.2)"
+                    : "0 6px 20px rgba(5, 150, 105, 0.4), 0 2px 4px rgba(5, 150, 105, 0.3)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(1.05)",
+                    boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                      ? "0 2px 4px rgba(107, 114, 128, 0.2)"
+                      : "0 8px 25px rgba(5, 150, 105, 0.5), 0 4px 8px rgba(5, 150, 105, 0.4)"
+                  },
+                  "&:active": {
+                    transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(0.98)"
+                  }
+                }}
+              >
+                <ArrowRightAltIcon sx={{ fontSize: { xs: "1.25rem", md: "1.5rem" } }} />
+              </IconButton>
             </TableCell>
           </TableRow>
         </TableBody>
