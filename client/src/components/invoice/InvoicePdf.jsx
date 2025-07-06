@@ -120,6 +120,13 @@ export const InvoicePdf = ({ sharedRows, currency = "£", weightUnit = "g" }) =>
 
             <View style={{ flex: 1, alignItems: "flex-end" }}>
               <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Total Weight</Text>
+                <View style={styles.totalBox}>
+                  <Text style={styles.totalValue}>{totalWeight.toFixed(2)}{weightUnit}</Text>
+                </View>
+              </View>
+
+              <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Net</Text>
                 <View style={styles.totalBox}>
                   <Text style={styles.totalValue}>{currency}{totalSubtotal.toFixed(2)}</Text>
