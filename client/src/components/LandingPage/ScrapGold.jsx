@@ -417,7 +417,12 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
         justifyContent: "space-between",
         alignItems: { xs: "stretch", lg: "flex-start" },
         minHeight: { xs: "100vh", lg: "auto" },
-        bgcolor: "linear-gradient(135deg, #fbfaf9 0%, #f7f5f3 30%, #f4f2f0 70%, #f1efed 100%)"
+        bgcolor: "linear-gradient(135deg, #fbfaf9 0%, #f7f5f3 30%, #f4f2f0 70%, #f1efed 100%)",
+        // Improve scroll behavior for mobile
+        scrollBehavior: "smooth",
+        "& *:focus": {
+          scrollMarginTop: isXs ? "120px" : "20px"
+        }
       }}
     >
       <Box sx={{ 
@@ -447,7 +452,9 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                 ? "0 8px 25px rgba(139, 115, 85, 0.12), 0 4px 8px rgba(139, 115, 85, 0.08)" 
                 : "0 16px 48px rgba(139, 115, 85, 0.16), 0 6px 16px rgba(139, 115, 85, 0.1)",
               borderColor: "#d4c4b0"
-            }
+            },
+            // Add scroll margin for mobile to prevent header overlap
+            scrollMarginTop: isXs ? "100px" : "20px"
           }}
         >
         <Box
@@ -611,13 +618,15 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                   startAdornment: (
                     <InputAdornment position="start">
                       <Typography sx={{ 
-                        color: "#ffffff", 
-                        fontSize: { xs: "1rem", md: "1.2rem" },
+                        color: "#2d1b06", 
+                        fontSize: { xs: "1.1rem", md: "1.3rem" },
                         fontWeight: "800",
-                        textShadow: "0 1px 3px rgba(139, 69, 19, 0.8)",
-                        background: "rgba(139, 69, 19, 0.25)",
-                        padding: "2px 6px",
-                        borderRadius: "4px"
+                        textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                        background: "linear-gradient(135deg, #ffd700 0%, #ffea4a 100%)",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(184, 134, 11, 0.4)",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
                       }}>
                         {getCurrencySymbol()}
                       </Typography>
@@ -627,46 +636,59 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                 sx={{ 
                   width: { xs: "100%", sm: "180px", md: "200px" },
                   "& .MuiOutlinedInput-root": {
-                    background: "linear-gradient(135deg, #fff8dc 0%, #fefdf7 50%, #fffaf0 100%)",
-                    borderRadius: 2,
+                    background: "linear-gradient(135deg, #ffffff 0%, #fff8dc 50%, #fefdf7 100%)",
+                    borderRadius: 3,
                     fontSize: { xs: "0.9rem", md: "1rem" },
                     fontWeight: "700",
-                    boxShadow: "0 4px 12px rgba(218, 165, 32, 0.2), inset 0 1px 0 rgba(255, 215, 0, 0.15)",
-                    height: { xs: "48px", md: "52px" },
+                    boxShadow: "0 4px 12px rgba(218, 165, 32, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+                    height: { xs: "50px", md: "54px" },
+                    border: "1px solid rgba(184, 134, 11, 0.2)",
                     "& fieldset": {
-                      borderColor: "#b8860b",
-                      borderWidth: "1.5px"
+                      borderColor: "#d4af37",
+                      borderWidth: "2px"
                     },
                     "&:hover fieldset": {
-                      borderColor: "#8b4513",
+                      borderColor: "#b8860b",
                       borderWidth: "2px",
                       boxShadow: "0 0 8px rgba(218, 165, 32, 0.3)"
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#5d4e37",
+                      borderColor: "#8b7d26",
                       borderWidth: "2px",
                       boxShadow: "0 0 12px rgba(255, 215, 0, 0.4)"
                     }
                   },
                   "& .MuiInputLabel-root": {
-                    color: "#ffffff",
-                    fontSize: { xs: "0.8rem", md: "0.9rem" },
-                    fontWeight: "800",
-                    textShadow: "0 1px 3px rgba(139, 69, 19, 0.9)",
-                    background: "rgba(139, 69, 19, 0.25)",
-                    padding: "2px 8px",
-                    borderRadius: "6px",
+                    color: "#2d1b06",
+                    fontSize: { xs: "0.85rem", md: "0.95rem" },
+                    fontWeight: "700",
+                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                    background: "linear-gradient(135deg, rgba(255, 248, 220, 0.95) 0%, rgba(255, 253, 247, 0.95) 100%)",
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(184, 134, 11, 0.3)",
+                    backdropFilter: "blur(4px)",
+                    transform: "translate(14px, -16px) scale(0.85)", // Position label higher above the field
+                    transformOrigin: "top left",
+                    zIndex: 1,
                     "&.Mui-focused": {
-                      color: "#ffffff",
-                      fontWeight: "800",
-                      background: "rgba(139, 69, 19, 0.35)",
+                      color: "#1a0f00",
+                      fontWeight: "700",
+                      background: "linear-gradient(135deg, rgba(255, 248, 220, 1) 0%, rgba(255, 253, 247, 1) 100%)",
+                      borderColor: "rgba(184, 134, 11, 0.6)",
+                      transform: "translate(14px, -16px) scale(0.85)" // Keep position when focused
+                    },
+                    "&.MuiInputLabel-shrink": {
+                      transform: "translate(14px, -16px) scale(0.85)" // Ensure consistent position when shrunk
                     }
                   },
                   "& .MuiOutlinedInput-input": {
-                    color: "#663300",
+                    color: "#2d1b06",
                     fontWeight: "800",
-                    fontSize: { xs: "0.9rem", md: "1rem" },
-                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                    fontSize: { xs: "0.95rem", md: "1.1rem" },
+                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.5)",
+                    textAlign: "center",
+                    scrollMarginTop: "120px", // Add scroll margin for mobile
                     '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
                       WebkitAppearance: 'none',
                       margin: 0
@@ -690,13 +712,15 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                   endAdornment: (
                     <InputAdornment position="end">
                       <Typography sx={{ 
-                        color: "#ffffff", 
-                        fontSize: { xs: "1rem", md: "1.2rem" },
+                        color: "#2d1b06", 
+                        fontSize: { xs: "1.1rem", md: "1.3rem" },
                         fontWeight: "800",
-                        textShadow: "0 1px 3px rgba(139, 69, 19, 0.8)",
-                        background: "rgba(139, 69, 19, 0.25)",
-                        padding: "2px 6px",
-                        borderRadius: "4px"
+                        textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                        background: "linear-gradient(135deg, #ffd700 0%, #ffea4a 100%)",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(184, 134, 11, 0.4)",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
                       }}>
                         %
                       </Typography>
@@ -706,47 +730,59 @@ export const ScrapGold = ({ weights, setWeights, sharedRows, setSharedRows }) =>
                 sx={{ 
                   width: { xs: "100%", sm: "130px", md: "150px" },
                   "& .MuiOutlinedInput-root": {
-                    background: "linear-gradient(135deg, #fff8dc 0%, #fefdf7 50%, #fffaf0 100%)",
-                    borderRadius: 2,
+                    background: "linear-gradient(135deg, #ffffff 0%, #fff8dc 50%, #fefdf7 100%)",
+                    borderRadius: 3,
                     fontSize: { xs: "0.9rem", md: "1rem" },
                     fontWeight: "700",
-                    boxShadow: "0 4px 12px rgba(218, 165, 32, 0.15), inset 0 1px 0 rgba(255, 215, 0, 0.1)",
-                    height: { xs: "48px", md: "52px" },
+                    boxShadow: "0 4px 12px rgba(218, 165, 32, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+                    height: { xs: "50px", md: "54px" },
+                    border: "1px solid rgba(184, 134, 11, 0.2)",
                     "& fieldset": {
-                      borderColor: "#b8860b",
-                      borderWidth: "1.5px"
+                      borderColor: "#d4af37",
+                      borderWidth: "2px"
                     },
                     "&:hover fieldset": {
-                      borderColor: "#8b4513",
+                      borderColor: "#b8860b",
                       borderWidth: "2px",
                       boxShadow: "0 0 8px rgba(218, 165, 32, 0.25)"
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#5d4e37",
+                      borderColor: "#8b7d26",
                       borderWidth: "2px",
                       boxShadow: "0 0 12px rgba(255, 215, 0, 0.35)"
                     }
                   },
                   "& .MuiInputLabel-root": {
-                    color: "#ffffff",
-                    fontSize: { xs: "0.8rem", md: "0.9rem" },
-                    fontWeight: "800",
-                    textShadow: "0 1px 3px rgba(139, 69, 19, 0.9)",
-                    background: "rgba(139, 69, 19, 0.25)",
-                    padding: "2px 8px",
-                    borderRadius: "6px",
+                    color: "#2d1b06",
+                    fontSize: { xs: "0.85rem", md: "0.95rem" },
+                    fontWeight: "700",
+                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                    background: "linear-gradient(135deg, rgba(255, 248, 220, 0.95) 0%, rgba(255, 253, 247, 0.95) 100%)",
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(184, 134, 11, 0.3)",
+                    backdropFilter: "blur(4px)",
+                    transform: "translate(14px, -16px) scale(0.85)", // Position label higher above the field
+                    transformOrigin: "top left",
+                    zIndex: 1,
                     "&.Mui-focused": {
-                      color: "#ffffff",
-                      fontWeight: "800",
-                      background: "rgba(139, 69, 19, 0.35)",
+                      color: "#1a0f00",
+                      fontWeight: "700",
+                      background: "linear-gradient(135deg, rgba(255, 248, 220, 1) 0%, rgba(255, 253, 247, 1) 100%)",
+                      borderColor: "rgba(184, 134, 11, 0.6)",
+                      transform: "translate(14px, -16px) scale(0.85)" // Keep position when focused
+                    },
+                    "&.MuiInputLabel-shrink": {
+                      transform: "translate(14px, -16px) scale(0.85)" // Ensure consistent position when shrunk
                     }
                   },
                   "& .MuiOutlinedInput-input": {
-                    color: "#663300",
+                    color: "#2d1b06",
                     fontWeight: "800",
-                    fontSize: { xs: "0.9rem", md: "1rem" },
+                    fontSize: { xs: "0.95rem", md: "1.1rem" },
                     textAlign: "center",
-                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.8)",
+                    textShadow: "0 1px 2px rgba(255, 255, 255, 0.5)",
+                    scrollMarginTop: "120px", // Add scroll margin for mobile
                     '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
                       WebkitAppearance: 'none',
                       margin: 0

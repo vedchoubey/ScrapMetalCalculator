@@ -108,11 +108,10 @@ export const AssayedBar = ({
     }
   }, [purity, weight, pricePerGram, subtotal]); // Removed onAssayedBarChange from dependencies
 
-  // For mobile screens, use a more compact table layout
+  // For mobile screens, use a card layout instead of table
   if (isXs) {
     return (
-      <Box sx={{ 
-        overflowX: "auto",
+      <Card sx={{ 
         background: "linear-gradient(135deg, #ffffff 0%, #fefefe 30%, #fdfdfc 70%, #fbfbfa 100%)",
         borderRadius: 4,
         border: "2px solid #e5ddd5",
@@ -123,141 +122,52 @@ export const AssayedBar = ({
           borderColor: "#d4c4b0"
         }
       }}>
-        <Table sx={{ minWidth: 320 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ 
-                borderBottom: "3px solid #b8860b", 
-                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
-                fontWeight: "800",
-                color: "#451a03",
-                fontSize: "0.7rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.3px",
-                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
-                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
-                width: 80,
-                py: 1.5,
-                px: 1
-              }}>
-                Type
-              </TableCell>
-              <TableCell sx={{ 
-                borderBottom: "3px solid #b8860b", 
-                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
-                fontWeight: "800",
-                color: "#451a03",
-                fontSize: "0.7rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.3px",
-                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
-                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
-                width: 70,
-                py: 1.5,
-                px: 1
-              }}>
-                Purity
-              </TableCell>
-              <TableCell sx={{ 
-                borderBottom: "3px solid #b8860b", 
-                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
-                fontWeight: "800",
-                color: "#451a03",
-                fontSize: "0.7rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.3px",
-                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
-                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
-                width: 80,
-                py: 1.5,
-                px: 1
-              }}>
-                Weight
-              </TableCell>
-              <TableCell sx={{ 
-                borderBottom: "3px solid #b8860b", 
-                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
-                fontWeight: "800",
-                color: "#451a03",
-                fontSize: "0.7rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.3px",
-                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
-                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
-                width: 60,
-                py: 1.5,
-                px: 1
-              }}>
-                Value
-              </TableCell>
-              <TableCell sx={{ 
-                borderBottom: "3px solid #b8860b", 
-                bgcolor: "linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #fff8dc 100%)",
-                fontWeight: "800",
-                color: "#451a03",
-                fontSize: "0.7rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.3px",
-                textShadow: "0 1px 2px rgba(139, 69, 19, 0.3)",
-                boxShadow: "inset 0 1px 0 rgba(255, 215, 0, 0.2)",
-                width: 50,
-                py: 1.5,
-                px: 1,
-                textAlign: 'center'
-              }}>
-                Add
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow sx={{
-              bgcolor: "#fef7ed",
-              "&:hover": {
-                bgcolor: "#f3e8d6",
-                transition: "background-color 0.2s ease"
-              }
-            }}>
-              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
-                <Typography sx={{ 
-                  fontSize: "0.75rem", 
-                  fontWeight: '700',
-                  color: '#451a03',
-                  lineHeight: 1.2
-                }}>
-                  Assayed
-                </Typography>
-                <Typography sx={{ 
-                  fontSize: "0.65rem", 
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ 
+            color: "#451a03",
+            fontWeight: "700",
+            fontSize: "1rem",
+            mb: 2,
+            textAlign: "center"
+          }}>
+            Assayed Bar
+          </Typography>
+          
+          {/* Input Fields in Grid */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={6}>
+              <Box>
+                <Typography variant="caption" sx={{ 
                   color: "#92400e",
-                  fontStyle: "italic",
-                  fontWeight: "500",
-                  lineHeight: 1
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                  fontSize: "0.7rem",
+                  mb: 1,
+                  display: "block"
                 }}>
-                  Bar
+                  Purity (%)
                 </Typography>
-              </TableCell>
-              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
                 <OutlinedInput
                   value={purity}
                   onChange={handlePurityChange}
                   placeholder="0"
                   disabled={disabled}
+                  fullWidth
                   endAdornment={
                     <InputAdornment position="end">
-                      <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.7rem" }}>%</Typography>
+                      <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.8rem" }}>%</Typography>
                     </InputAdornment>
                   }
                   sx={{
-                    width: "60px",
-                    height: "36px",
-                    fontSize: "0.75rem",
+                    height: "48px",
+                    fontSize: "0.9rem",
                     fontWeight: "700",
-                    borderRadius: 2,
+                    borderRadius: 3,
                     background: "#fefcf3",
+                    scrollMarginTop: "120px", // Add scroll margin for mobile
                     '& .MuiInputBase-input': {
                       textAlign: 'center',
                       color: "#451a03",
-                      padding: "6px 8px",
                       '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
                         WebkitAppearance: 'none',
                         margin: 0
@@ -268,40 +178,53 @@ export const AssayedBar = ({
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#d97706",
-                      borderWidth: "1px"
+                      borderWidth: "2px"
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#92400e"
+                      borderColor: "#b8860b"
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#451a03",
+                      borderColor: "#8b7d26",
                       borderWidth: "2px"
                     }
                   }}
                 />
-              </TableCell>
-              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={6}>
+              <Box>
+                <Typography variant="caption" sx={{ 
+                  color: "#92400e",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                  fontSize: "0.7rem",
+                  mb: 1,
+                  display: "block"
+                }}>
+                  Weight ({getWeightUnitLabel()})
+                </Typography>
                 <OutlinedInput
                   value={weight}
                   onChange={handleWeightChange}
                   placeholder="0"
                   disabled={disabled}
+                  fullWidth
                   endAdornment={
                     <InputAdornment position="end">
-                      <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.7rem" }}>{getWeightUnitLabel()}</Typography>
+                      <Typography sx={{ color: "#92400e", fontWeight: "600", fontSize: "0.8rem" }}>{getWeightUnitLabel()}</Typography>
                     </InputAdornment>
                   }
                   sx={{
-                    width: "70px",
-                    height: "36px",
-                    fontSize: "0.75rem",
+                    height: "48px",
+                    fontSize: "0.9rem",
                     fontWeight: "700",
-                    borderRadius: 2,
+                    borderRadius: 3,
                     background: "#fefcf3",
+                    scrollMarginTop: "120px", // Add scroll margin for mobile
                     '& .MuiInputBase-input': {
                       textAlign: 'center',
                       color: "#451a03",
-                      padding: "6px 8px",
                       '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
                         WebkitAppearance: 'none',
                         margin: 0
@@ -312,86 +235,105 @@ export const AssayedBar = ({
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#d97706",
-                      borderWidth: "1px"
+                      borderWidth: "2px"
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#92400e"
+                      borderColor: "#b8860b"
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#451a03",
+                      borderColor: "#8b7d26",
                       borderWidth: "2px"
                     }
                   }}
                 />
-              </TableCell>
-              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1 }}>
-                <Box 
-                  sx={{
-                    display: "flex", 
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: subtotal > 0 
-                      ? "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)"
-                      : "linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)",
-                    color: "white",
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 2,
-                    width: "fit-content",
-                    border: subtotal > 0 ? "1px solid #065f46" : "1px solid #6b7280",
-                    boxShadow: subtotal > 0 
-                      ? "0 2px 4px rgba(5, 150, 105, 0.3)" 
-                      : "0 1px 2px rgba(107, 114, 128, 0.2)",
-                    minWidth: "45px",
-                    minHeight: "24px"
-                  }}
-                >
-                  <Typography sx={{ 
-                    fontSize: "0.7rem", 
-                    fontWeight: "700",
-                    lineHeight: 1
-                  }}>
-                    {getCurrencySymbol()}{subtotal.toFixed(0)}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell sx={{ borderBottom: "1px solid #f3e8d6", py: 1.5, px: 1, textAlign: 'center' }}>
-                <IconButton
-                  onClick={handleAdd}
-                  disabled={disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0}
-                  sx={{
-                    background: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                      ? "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)"
-                      : "linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 70%, #34d399 100%)",
-                    color: "white",
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    border: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                      ? "1px solid #6b7280"
-                      : "1px solid #065f46",
-                    boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                      ? "0 1px 2px rgba(107, 114, 128, 0.2)"
-                      : "0 3px 8px rgba(5, 150, 105, 0.4)",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(1.05)",
-                      boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
-                        ? "0 1px 2px rgba(107, 114, 128, 0.2)"
-                        : "0 4px 12px rgba(5, 150, 105, 0.5)"
-                    },
-                    "&:active": {
-                      transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(0.95)"
-                    }
-                  }}
-                >
-                  <ArrowRightAltIcon sx={{ fontSize: "1rem" }} />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Box>
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* Results Display */}
+          <Box sx={{ 
+            display: "flex", 
+            justifyContent: "space-between", 
+            alignItems: "center",
+            p: 2,
+            background: "linear-gradient(135deg, #fef7ed 0%, #fed7aa 50%, #fef3c7 100%)",
+            borderRadius: 3,
+            border: "1px solid #d97706",
+            mb: 2
+          }}>
+            <Box>
+              <Typography variant="caption" sx={{ 
+                color: "#92400e",
+                fontWeight: "600",
+                fontSize: "0.7rem",
+                textTransform: "uppercase"
+              }}>
+                Rate per {getWeightUnitLabel()}
+              </Typography>
+              <Typography sx={{ 
+                color: "#451a03",
+                fontWeight: "800",
+                fontSize: "0.9rem"
+              }}>
+                {getCurrencySymbol()}{pricePerGram.toFixed(2)}
+              </Typography>
+            </Box>
+            
+            <Box sx={{ textAlign: "right" }}>
+              <Typography variant="caption" sx={{ 
+                color: "#92400e",
+                fontWeight: "600",
+                fontSize: "0.7rem",
+                textTransform: "uppercase"
+              }}>
+                Total Value
+              </Typography>
+              <Typography sx={{ 
+                color: "#451a03",
+                fontWeight: "800",
+                fontSize: "1.1rem"
+              }}>
+                {getCurrencySymbol()}{subtotal.toFixed(2)}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Add Button */}
+          <Box sx={{ textAlign: "center" }}>
+            <IconButton
+              onClick={handleAdd}
+              disabled={disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0}
+              sx={{
+                background: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                  ? "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)"
+                  : "linear-gradient(135deg, #b8860b 0%, #daa520 30%, #ffd700 70%, #ffea4a 100%)",
+                color: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "#ffffff" : "#1a0f00",
+                width: "60px",
+                height: "60px",
+                borderRadius: 3,
+                border: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                  ? "2px solid #6b7280"
+                  : "2px solid #8b4513",
+                boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                  ? "0 2px 4px rgba(107, 114, 128, 0.2)"
+                  : "0 4px 12px rgba(184, 134, 11, 0.3), inset 0 1px 0 rgba(255, 235, 74, 0.3)",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "translateY(-2px) scale(1.05)",
+                  boxShadow: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0)
+                    ? "0 2px 4px rgba(107, 114, 128, 0.2)"
+                    : "0 6px 16px rgba(184, 134, 11, 0.4), inset 0 2px 0 rgba(255, 235, 74, 0.4)"
+                },
+                "&:active": {
+                  transform: (disabled || !purity || !weight || parseFloat(purity) <= 0 || parseFloat(weight) <= 0) ? "none" : "scale(0.95)"
+                }
+              }}
+            >
+              <ArrowRightAltIcon sx={{ fontSize: "1.5rem" }} />
+            </IconButton>
+          </Box>
+        </CardContent>
+      </Card>
     );
   }
 
