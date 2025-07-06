@@ -48,9 +48,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   itemText: {
-    fontSize: 10,
+    fontSize: 8,
     color: "#34495e",
     fontWeight: 400,
+    flex: 1,
+    textAlign: "center",
   },
   normalText: {
     fontSize: 8,
@@ -84,9 +86,11 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   headerText: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: 600,
     color: "#2c3e50",
+    flex: 1,
+    textAlign: "center",
   },
   totalRow: {
     display: "flex",
@@ -113,8 +117,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ShortReceipt = ({ sharedRows, totalWeight, totalSubtotal, currency = "£", weightUnit = "g" }) => {
+// Generate random enquiry number
+const generateEnquiryNumber = () => {
+  // Generate a 6-digit random number between 100000 and 999999
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+export const ShortReceipt = ({ sharedRows, totalWeight, totalSubtotal, currency = "£", weightUnit = "g", enquiryNumber }) => {
   const date = new Date().toLocaleString();
+  // Use provided enquiryNumber or generate one if not provided
+  const finalEnquiryNumber = enquiryNumber || generateEnquiryNumber();
+  const vatRate = 0;
+  
   return (
     <Document>
       <Page size="A6" style={styles.card}>
@@ -138,15 +152,28 @@ export const ShortReceipt = ({ sharedRows, totalWeight, totalSubtotal, currency 
         <View style={styles.divider} />
         
         <View style={styles.headerRow}>
-          <Text style={styles.headerText}>Items</Text>
-          <Text style={styles.headerText}>Weight ({weightUnit})</Text>
+          <Text style={[styles.headerText, { width: '12%' }]}>Enq #</Text>
+          <Text style={[styles.headerText, { width: '25%' }]}>Fineness</Text>
+          <Text style={[styles.headerText, { width: '15%' }]}>Weight</Text>
+          <Text style={[styles.headerText, { width: '18%' }]}>Price Per G</Text>
+          <Text style={[styles.headerText, { width: '12%' }]}>VAT</Text>
+          <Text style={[styles.headerText, { width: '18%' }]}>Amount</Text>
         </View>
 
         <View style={styles.items}>
           {sharedRows.map((row, index) => (
             <View key={index} style={styles.itemRow}>
-              <Text style={styles.itemText}>{`${row.Carat} Carat Gold`}</Text>
-              <Text style={styles.itemText}>{`${row.weight}${weightUnit}`}</Text>
+              <Text style={[styles.itemText, { width: '12%' }]}>{finalEnquiryNumber}</Text>
+              <Text style={[styles.itemText, { width: '25%', fontSize: 6 }]}>
+                {row.type === 'assayed' 
+                  ? `ASSAYED BAR ${row.purity}%` 
+                  : `GOLD ${row.Carat}`
+                }
+              </Text>
+              <Text style={[styles.itemText, { width: '15%' }]}>{row.weight.toFixed(2)}</Text>
+              <Text style={[styles.itemText, { width: '18%' }]}>{(row.pricePerUnit || row.pricePerGram)?.toFixed(2) || "0.00"}</Text>
+              <Text style={[styles.itemText, { width: '12%' }]}>{vatRate.toFixed(2)}</Text>
+              <Text style={[styles.itemText, { width: '18%' }]}>{row.subtotal.toFixed(2)}</Text>
             </View>
           ))}
         </View>
